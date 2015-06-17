@@ -27,3 +27,6 @@ build/Release
 node_modules
 .idea
 bower_components
+
+#bower
+.bowerrc
