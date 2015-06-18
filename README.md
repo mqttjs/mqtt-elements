@@ -6,7 +6,7 @@ Polymer elements for MQTT
 mkdir mqtt-wrapper && cd mqtt-wrapper 
 git clone https://github.com/mqttjs/mqtt-elements.git
 cd mqtt-elements
-mv debug.bowerrc .bowerrc
+cp debug.bowerrc .bowerrc
 npm install
 bower install
 grunt serve
