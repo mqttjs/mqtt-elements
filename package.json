@@ -1,0 +1,34 @@
+{
+  "name": "mqtt-elements",
+  "version": "0.0.1",
+  "description": "Polymer elements for MQTT",
+  "main": "mqtt-elements.html",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mqttjs/mqtt-elements.git"
+  },
+  "keywords": [
+    "mqtt",
+    "polymer",
+    "websockets"
+  ],
+  "author": "Sandro Kock <sandro.kock@gmail.com> (https://github.com/sandro-k)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mqttjs/mqtt-elements/issues"
+  },
+  "homepage": "https://github.com/mqttjs/mqtt-elements#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-connect": "^0.10.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "mqtt": "^1.3.0",
+    "web-component-tester": "git+https://github.com/sandro-k/web-component-tester.git"
+  }
+}
