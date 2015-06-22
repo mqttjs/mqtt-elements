@@ -14,26 +14,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>mqtt-connection-basic</title>
 
-  <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
-  <link rel="import" href="../bower_components/polymer/polymer.html">
-  <script src="../bower_components/web-component-tester/browser.js"></script>
-  <script src="../bower_components/test-fixture/test-fixture-mocha.js"></script>
-  <link rel="import" href="../bower_components/test-fixture/test-fixture.html">
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+
+  <script src="../../web-component-tester/browser.js"></script>
 
   <!-- Step 1: import the element to test -->
-  <link rel="import" href="../elements/my-greeting/my-greeting.html">
+  <link rel="import" href="../mqtt-elements.html">
 
 </head>
 <body>
 
-
+<mqtt-connection></mqtt-connection>
 
 <script>
 
+  var mqttElement =  document.querySelector('mqtt-connection');
+
   suite('mqtt-connection-basic', function() {
 
-    test('Create Element', function() {
-
+    test('Element is not null', function() {
+      assert.isNotNull(mqttElement);
     });
 
   });
