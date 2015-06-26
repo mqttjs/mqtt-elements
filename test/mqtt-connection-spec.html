@@ -30,23 +30,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   var mqttElement =  document.querySelector('mqtt-connection');
 
-  suite('mqtt-connection-basic', function() {
+  suite('mqtt-connection-spec', function() {
 
     test('Element is not null', function() {
       assert.isNotNull(mqttElement);
+      assert.notTypeOf(mqttElement, 'undefined');
     });
 
-
-    test('mqtt-connection.url is a String', function() {
-      assert.typeOf(mqttElement.url, 'string', 'mqtt-connection.url should be a string');
+    test('mqtt-connection.clean is boolean', function() {
+      assert.isBoolean(mqttElement.clean, 'mqtt-connection.options.clean should be a number greater than 0');
+      assert.isTrue(mqttElement.clean);
     });
 
     test('mqtt-connection.connected is boolean', function() {
       assert.isBoolean(mqttElement.connected, 'mqtt-connection.connected should be a boolean');
+      assert.isFalse(mqttElement.connected);
     });
 
     test('mqtt-connection.disconnecting is boolean', function() {
       assert.isBoolean(mqttElement.disconnecting, 'mqtt-connection.disconnecting should be a boolean');
+      assert.isFalse(mqttElement.disconnecting);
+    });
+
+    test('mqtt-connection.url is a String', function() {
+      assert.typeOf(mqttElement.url, 'string', 'mqtt-connection.url should be a string');
     });
 
     test('mqtt-connection.options.protocolId is a String', function() {
@@ -75,9 +82,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.typeOf(mqttElement.options.protocolId, 'string', 'mqtt-connection.options.protocolId should be a string');
     });
 
-    test('mqtt-connection.clean is boolean', function() {
-      assert.isBoolean(mqttElement.options.clean, 'mqtt-connection.options.clean should be a number greater than 0');
-    });
+
 
     test('mqtt-connection.options.protocolVersion is a number', function() {
       assert.isNumber(mqttElement.options.protocolVersion, 'mqtt-connection.options.protocolVersion should be a number greater than 0');
