@@ -14,18 +14,28 @@ module.exports = function (grunt) {
             },
             chrome: {
                 options: {browsers: ['chrome']},
+            },
+            firefox: {
+                options: {browsers: ['firefox']},
             }
         },
 
         watch: {
-
+            test: {
+                files: ['test/*.html', 'test/*.js'],
+                tasks: ['test']
+            },
+            html: {
+                files: ['*.html'],
+                tasks: ['test']
+            }
         },
 
         connect: {
             server: {
                 options: {
                     port: 9001,
-                    base: '.'
+                    base: '..'
                 }
             }
         }
@@ -50,6 +60,6 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['build']);
 
     // define the test task to run wct tests
-    grunt.registerTask('test', ['wct-test:local']);
+    grunt.registerTask('test', ['wct-test:chrome']);
 
 };
