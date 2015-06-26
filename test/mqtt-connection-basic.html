@@ -36,6 +36,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.isNotNull(mqttElement);
     });
 
+
+    test('mqtt-connection.url is a String', function() {
+      assert.typeOf(mqttElement.url, 'string', 'mqtt-connection.url should be a string');
+    });
+
+    test('mqtt-connection.connected is boolean', function() {
+      assert.isBoolean(mqttElement.connected, 'mqtt-connection.connected should be a boolean');
+    });
+
+    test('mqtt-connection.disconnecting is boolean', function() {
+      assert.isBoolean(mqttElement.disconnecting, 'mqtt-connection.disconnecting should be a boolean');
+    });
+
+    test('mqtt-connection.options.protocolId is a String', function() {
+      assert.typeOf(mqttElement.options.protocolId, 'mqtt-connection.options.protocolId should be a String');
+      assert.strictEqual(mqttElement.options.protocolId, 'MQIsdp', 'On a new instance of <mqtt-connection> the protocolId should be MQIsdp');
+    });
+
+    test('mqtt-connection.options.protocolVersion is a number', function() {
+      assert.isNumber(mqttElement.options.protocolVersion, 'mqtt-connection.options.protocolVersion should be a number greater than 0');
+      assert.strictEqual(mqttElement.options.protocolVersion, 3, 'On a new instance of <mqtt-connection> the protocolVersion should be 3');
+    });
+
+    test('mqtt-connection.options.keepalive is a number', function() {
+      assert.isNumber(mqttElement.options.keepalive, 'mqtt-connection.options.keepalive should be a number greater than 0');
+    });
+
+    test('mqtt-connection.options.clientId is a String', function() {
+      assert.typeOf(mqttElement.options.clientId, 'string', 'mqtt-connection.options.clientId should be a string');
+    });
+
+    test('mqtt-connection.options.will should be undefined', function() {
+      assert.typeOf(mqttElement.options.will, 'undefined', 'mqtt-connection.options.will should be a undefined on a new instance of <mqtt-connection>');
+    });
+
+    test('mqtt-connection.options.protocolId is a String', function() {
+      assert.typeOf(mqttElement.options.protocolId, 'string', 'mqtt-connection.options.protocolId should be a string');
+    });
+
+    test('mqtt-connection.clean is boolean', function() {
+      assert.isBoolean(mqttElement.options.clean, 'mqtt-connection.options.clean should be a number greater than 0');
+    });
+
+    test('mqtt-connection.options.protocolVersion is a number', function() {
+      assert.isNumber(mqttElement.options.protocolVersion, 'mqtt-connection.options.protocolVersion should be a number greater than 0');
+    });
+
+    test('mqtt-connection.options.encoding is a String', function() {
+      assert.typeOf(mqttElement.options.encoding, 'string', 'mqtt-connection.options.encoding should be a string');
+    });
+
+    test('mqtt-connection.options.username should be undefined', function() {
+      assert.typeOf(mqttElement.options.username, 'undefined', 'mqtt-connection.options.username should be undefined');
+    });
+
+    test('mqtt-connection.options.password should be undefined', function() {
+      assert.typeOf(mqttElement.options.password, 'undefined', 'mqtt-connection.options.password should be undefined');
+    });
+
+
   });
 </script>
 
