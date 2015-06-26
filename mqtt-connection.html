@@ -8,6 +8,33 @@
 
 <script>
   Polymer({
-    is: 'mqtt-connection'
+    is: 'mqtt-connection',
+    properties: {
+
+      /**
+       * For further documentation see https://github.com/mqttjs/MQTT.js/wiki/connection
+       * options.protocolId :String
+       * options.protocolVersion :number
+       * options.keepalive :number
+       * options.clientId :String
+       * options.will :Object
+       * options.clean :boolean
+       * options.username :String
+       * options.password :String
+       */
+      options: {
+        type: Object,
+        readOnly: false,
+        notify: true
+      },
+
+      url: {
+        type: String,
+        readOnly: false,
+        notify: true,
+        value: ''
+      }
+
+    }
   });
 </script>
