@@ -12,6 +12,36 @@
     properties: {
 
       /**
+       * TODO SKO add property description
+       */
+      clean: {
+        type: Boolean,
+        readOnly: false,
+        notify: true,
+        value: true
+      },
+
+      /**
+       * TODO SKO add property description
+       */
+      connected: {
+        type: Boolean,
+        readOnly: false,
+        notify: true,
+        value: false
+      },
+
+      /**
+       * TODO SKO add property description
+       */
+      disconnecting: {
+        type: Boolean,
+        readOnly: false,
+        notify: true,
+        value: false
+      },
+
+      /**
        * For further documentation see https://github.com/mqttjs/MQTT.js/wiki/connection
        * options.protocolId :String
        * options.protocolVersion :number
