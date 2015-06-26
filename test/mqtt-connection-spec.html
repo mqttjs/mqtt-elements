@@ -52,22 +52,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.isFalse(mqttElement.disconnecting);
     });
 
-    test('mqtt-connection.url is a String', function() {
-      assert.typeOf(mqttElement.url, 'string', 'mqtt-connection.url should be a string');
+    test('mqtt-connection.auto is boolean', function() {
+      assert.isBoolean(mqttElement.auto, 'mqtt-connection.auto should be a boolean');
+      assert.isTrue(mqttElement.auto);
     });
 
     test('mqtt-connection.options.protocolId is a String', function() {
-      assert.typeOf(mqttElement.options.protocolId, 'mqtt-connection.options.protocolId should be a String');
-      assert.strictEqual(mqttElement.options.protocolId, 'MQIsdp', 'On a new instance of <mqtt-connection> the protocolId should be MQIsdp');
+      assert.typeOf(mqttElement.options.protocolId, 'string', 'mqtt-connection.options.protocolId should be a String');
+      assert.strictEqual(mqttElement.options.protocolId, 'MQTT', 'On a new instance of <mqtt-connection> the protocolId should be MQIsdp');
     });
 
     test('mqtt-connection.options.protocolVersion is a number', function() {
       assert.isNumber(mqttElement.options.protocolVersion, 'mqtt-connection.options.protocolVersion should be a number greater than 0');
-      assert.strictEqual(mqttElement.options.protocolVersion, 3, 'On a new instance of <mqtt-connection> the protocolVersion should be 3');
+      assert.strictEqual(mqttElement.options.protocolVersion, 4, 'On a new instance of <mqtt-connection> the protocolVersion should be 4');
+    });
+
+    test('mqtt-connection.options.reconnectPeriod is a number', function() {
+      assert.isNumber(mqttElement.options.reconnectPeriod, 'mqtt-connection.options.reconnectPeriod should be a number greater than 0');
+      assert.strictEqual(mqttElement.options.reconnectPeriod, 1000, 'On a new instance of <mqtt-connection> the reconnectPeriod should be 4');
     });
 
     test('mqtt-connection.options.keepalive is a number', function() {
       assert.isNumber(mqttElement.options.keepalive, 'mqtt-connection.options.keepalive should be a number greater than 0');
+      assert.strictEqual(mqttElement.options.keepalive,10);
     });
 
     test('mqtt-connection.options.clientId is a String', function() {
@@ -76,16 +83,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('mqtt-connection.options.will should be undefined', function() {
       assert.typeOf(mqttElement.options.will, 'undefined', 'mqtt-connection.options.will should be a undefined on a new instance of <mqtt-connection>');
-    });
-
-    test('mqtt-connection.options.protocolId is a String', function() {
-      assert.typeOf(mqttElement.options.protocolId, 'string', 'mqtt-connection.options.protocolId should be a string');
-    });
-
-
-
-    test('mqtt-connection.options.protocolVersion is a number', function() {
-      assert.isNumber(mqttElement.options.protocolVersion, 'mqtt-connection.options.protocolVersion should be a number greater than 0');
     });
 
     test('mqtt-connection.options.encoding is a String', function() {
@@ -100,7 +97,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.typeOf(mqttElement.options.password, 'undefined', 'mqtt-connection.options.password should be undefined');
     });
 
-
+    test('mqtt-connection.url is a String', function() {
+      assert.typeOf(mqttElement.url, 'string', 'mqtt-connection.url should be a string');
+    });
   });
 </script>
 

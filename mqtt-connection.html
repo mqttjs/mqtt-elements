@@ -1,9 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <dom-module id="mqtt-connection">
-  <template>
-    <h1>mqtt-connection</h1>
-  </template>
+  
 </dom-module>
 
 <script>
@@ -12,7 +10,8 @@
     properties: {
 
       /**
-       * TODO SKO add property description
+       * Set the clean flag to false to receive QOS 1 and 2 messages while offline. The messages are delivered if the
+       * connection is re-establish with the broker.
        */
       clean: {
         type: Boolean,
@@ -22,17 +21,17 @@
       },
 
       /**
-       * TODO SKO add property description
+       * Indicates weather the mqtt client is connected or not
        */
       connected: {
         type: Boolean,
-        readOnly: false,
+        readOnly: true,
         notify: true,
         value: false
       },
 
       /**
-       * TODO SKO add property description
+       * Indicates that the mqtt client is disconnecting
        */
       disconnecting: {
         type: Boolean,
@@ -42,22 +41,50 @@
       },
 
       /**
+       * If this
+       */
+      auto: {
+        type: Boolean,
+        readOnly: false,
+        notify: true,
+        value: true
+      },
+
+      /**
+       * The options are directly passed to MQTT.js
        * For further documentation see https://github.com/mqttjs/MQTT.js/wiki/connection
-       * options.protocolId :String
-       * options.protocolVersion :number
-       * options.keepalive :number
+       * options.protocolId :String MQTT
+       * options.protocolVersion :number 4
+       * options.keepalive :number 10
        * options.clientId :String
-       * options.will :Object
        * options.clean :boolean
        * options.username :String
        * options.password :String
+       * options.will :Object The clients will message
+       * options.will.topic :String The topic of the will message of the client
+       * options.will.qos :number The QOS of the will message of the client
+       * options.will.retain :boolean The retain flag of the will message of the client
        */
       options: {
         type: Object,
         readOnly: false,
-        notify: true
+        notify: true,
+        value: {
+          //MQIsdp
+          protocolId: "MQTT",
+          protocolVersion: 4,
+          keepalive: 10,
+          reconnectPeriod: 1000,
+          clientId: "",
+          encoding: "string"
+        }
       },
 
+
+      /**
+       * The url of the MQTT broker and can be on the following protocols: 'mqtt', 'mqtts', 'tcp', 'tls', 'ws', 'wss'.
+       * E.g ws://localhost:8080
+       */
       url: {
         type: String,
         readOnly: false,
