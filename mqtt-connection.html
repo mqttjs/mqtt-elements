@@ -1,7 +1,30 @@
 <link rel="import" href="../polymer/polymer.html">
+<script src="dist/browserMqtt.js"></script>
+
+<!--
+The `mqtt-connection` element exposes mqtt connection functionality to the web.
+Use one `<mqtt-connection>` element per connection to a mqtt broker.
+Currently the element supports `ws` connections.
+
+    <mqtt-connection
+        url="ws://127.0.0.1:8080"
+        options='{reconnectPeriod: 1000}'>
+    </mqtt-connection>
+
+
+With `auto` set to `true` (default), the element performs a mqtt#Connect whenever
+the element is ready or the connection gets disconnected.
+
+Note: The `options` attribute must be double quoted JSON.
+
+You can disconnect the mqtt-connection explicitly by calling `disconnect` on the
+element. And manually connect if `auto` is set to `false` with `connect`
+
+@demo demo/index.html
+-->
 
 <dom-module id="mqtt-connection">
-  
+
 </dom-module>
 
 <script>
@@ -10,7 +33,18 @@
     properties: {
 
       /**
-       * Set the clean flag to false to receive QOS 1 and 2 messages while offline. The messages are delivered if the
+       * If set to `true` the mqtt connection will be established after element is loaded.
+       * If the connection is disconnected the element will automatically try to reconnect to the MQTT-Broker
+       */
+      auto: {
+        type: Boolean,
+        readOnly: false,
+        notify: true,
+        value: true
+      },
+
+      /**
+       * Set the clean flag to `false` to receive QOS 1 and 2 messages while offline. The messages are delivered if the
        * connection is re-establish with the broker.
        */
       clean: {
@@ -21,7 +55,7 @@
       },
 
       /**
-       * Indicates weather the mqtt client is connected or not
+       * Indicates weather the mqtt client is connected to the mqtt broker or not
        */
       connected: {
         type: Boolean,
@@ -31,39 +65,30 @@
       },
 
       /**
-       * Indicates that the mqtt client is disconnecting
+       * Indicates weather the mqtt client is currently disconnecting the mqtt connection or not
        */
       disconnecting: {
         type: Boolean,
-        readOnly: false,
+        readOnly: true,
         notify: true,
         value: false
       },
 
       /**
-       * If this
-       */
-      auto: {
-        type: Boolean,
-        readOnly: false,
-        notify: true,
-        value: true
-      },
-
-      /**
        * The options are directly passed to MQTT.js
        * For further documentation see https://github.com/mqttjs/MQTT.js/wiki/connection
-       * options.protocolId :String MQTT
-       * options.protocolVersion :number 4
-       * options.keepalive :number 10
-       * options.clientId :String
-       * options.clean :boolean
-       * options.username :String
-       * options.password :String
-       * options.will :Object The clients will message
-       * options.will.topic :String The topic of the will message of the client
-       * options.will.qos :number The QOS of the will message of the client
-       * options.will.retain :boolean The retain flag of the will message of the client
+       * * options.protocolId :String The mqtt protocolId tha is send to the mqtt broker DEFAULT: "MQTT"
+       * * options.protocolVersion :number 4
+       * * options.keepalive :number 10
+       * * options.clientId :String
+       * * options.clean :boolean
+       * * options.username :String The username that is user to authenticate the connection with
+       * * options.password :String The password that will be used to authenticate the `user` at the mqtt broker
+       * * options.will :Object The clients will message that is published from the mqtt broker in behalf of the client
+       * if the connection is from the client to the mqtt broker is lost.
+       * * options.will.topic :String The topic of the will message of the client eg. "client/"
+       * * options.will.qos :number The QOS of the will message of the client
+       * * options.will.retain :boolean The retain flag of the will message of the client
        */
       options: {
         type: Object,
@@ -80,9 +105,8 @@
         }
       },
 
-
       /**
-       * The url of the MQTT broker and can be on the following protocols: 'mqtt', 'mqtts', 'tcp', 'tls', 'ws', 'wss'.
+       * The url of the mqtt broker and can be on the following protocols: 'mqtt', 'mqtts', 'tcp', 'tls', 'ws', 'wss'.
        * E.g ws://localhost:8080
        */
       url: {
@@ -91,7 +115,6 @@
         notify: true,
         value: ''
       }
-
     }
   });
 </script>
