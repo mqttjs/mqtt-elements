@@ -27,11 +27,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <mqtt-connection></mqtt-connection>
 
 <script>
-
+  //  Setp 2: get the element
   var mqttElement =  document.querySelector('mqtt-connection');
 
   suite('mqtt-connection-spec', function() {
-
+    //  Setp 3: Test the element
     test('Element is not null', function() {
       assert.isNotNull(mqttElement);
       assert.notTypeOf(mqttElement, 'undefined');
