@@ -57,6 +57,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.isTrue(mqttElement.auto);
     });
 
+    test('mqtt-connection.clientIdPrefix is String', function() {
+      assert.typeOf(mqttElement.clientIdPrefix, 'string', 'mqtt-connection.clientIdPrefix should be a String');
+      assert.strictEqual(mqttElement.clientIdPrefix, 'mqttjs_', 'On a new instance of <mqtt-connection> the clientIdPrefix should be mqttjs_');
+    });
+
     test('mqtt-connection.options.protocolId is a String', function() {
       assert.typeOf(mqttElement.options.protocolId, 'string', 'mqtt-connection.options.protocolId should be a String');
       assert.strictEqual(mqttElement.options.protocolId, 'MQTT', 'On a new instance of <mqtt-connection> the protocolId should be MQIsdp');
