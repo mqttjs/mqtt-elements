@@ -24,10 +24,14 @@ element. And manually connect if `auto` is set to `false` with `connect`
 -->
 
 <dom-module id="mqtt-connection">
-
+  <template>
+  </template>
 </dom-module>
 
 <script>
+
+  'use strict';
+
   Polymer({
     is: 'mqtt-connection',
     properties: {
@@ -75,6 +79,25 @@ element. And manually connect if `auto` is set to `false` with `connect`
       },
 
       /**
+       * The actual MQTT.js client that will be created on the first connect
+       */
+      client: {
+        type: Object,
+        readOnly: false,
+        notify: true,
+        value: null
+      },
+
+      /**
+       * The prefix of the option.clientId. If the option.clientId is not set a random ID will be generated prefixed
+       * with clientIdPrefix
+       */
+      clientIdPrefix: {
+        type: String,
+        value: 'mqttjs_'
+      },
+
+      /**
        * The options are directly passed to MQTT.js
        * For further documentation see https://github.com/mqttjs/MQTT.js/wiki/connection
        * * options.protocolId :String The mqtt protocolId tha is send to the mqtt broker DEFAULT: "MQTT"
@@ -113,7 +136,84 @@ element. And manually connect if `auto` is set to `false` with `connect`
         type: String,
         readOnly: false,
         notify: true,
-        value: ''
+        value: 'ws://127.0.0.1:80'
+      }
+    },
+    ready: function() {
+      console.log('ready');
+      this.connectClient();
+    },
+
+    attached: function() {
+      console.log('attached');
+    },
+
+    connectClient: function(){
+      if (mqtt){
+        this.options.clientId = this._generateClientId();
+        this.client = mqtt.connect(this.url, this.options);
+
+        this.client.on("connect", this._handelConnected.bind(this));
+
+        this.client.on("reconnect", this._handelReconnect.bind(this));
+
+        this.client.on("close", this._handelClose.bind(this));
+
+        this.client.on("offline", this._handelOffline.bind(this));
+
+        this.client.on("error", this._handelError.bind(this));
+
+        this.client.on("message", this._handelMessage.bind(this));
+
+      } else {
+        // failed to load mqtt.js
+        // TODO SKO tell the user about this and maybe log environment
+      }
+    },
+
+    /**
+     * Generates a random mqtt client ID
+     * @returns {string} the X digit mqtt client ID prefixed with 'mqttjs_'
+     * @private
+     */
+    _generateClientId: function(){
+      return 'mqttjs_' + Math.random().toString(16).substr(2, 8);
+    },
+
+    _handelConnected: function(){
+      console.log("_handelConnected");
+      this._setMqttConnected(this.client.connected);
+      this.fire("mqtt-connection-connected", {value: this.connected});
+    },
+    _handelReconnect: function(){
+      console.log("_handelReconnect");
+      this.fire("mqtt-connection-reconnect");
+    },
+
+    _handelClose: function(){
+      console.log("_handelClose")
+      this.fire("mqtt-connection-close");
+    },
+
+    _handelOffline: function(){
+      console.log("_handelOffline")
+      this._setMqttConnected(this.client.connected);
+      this.fire("mqtt-connection-offline", {value: this.connected});
+    },
+
+    _handelError: function(){
+      console.log("_handelError")
+      this.fire("mqtt-connection-error");
+    },
+
+    _handelMessage: function(topic, message, packet){
+      this.fire("mqtt-connection-message", {'topic': topic, 'message': message, 'packet': packet});
+      console.log("_handelMessage: %s %s %s", topic, message, packet)
+    },
+
+    _setMqttConnected: function(state) {
+      if (typeof state === "boolean") {
+        this._setConnected(state);
       }
     }
   });
