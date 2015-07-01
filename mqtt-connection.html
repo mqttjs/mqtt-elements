@@ -1,13 +1,220 @@
 <link rel="import" href="../polymer/polymer.html">
+<script src="dist/browserMqtt.js"></script>
+
+<!--
+The `mqtt-connection` element exposes mqtt connection functionality to the web.
+Use one `<mqtt-connection>` element per connection to a mqtt broker.
+Currently the element supports `ws` connections.
+
+    <mqtt-connection
+        url="ws://127.0.0.1:8080"
+        options='{reconnectPeriod: 1000}'>
+    </mqtt-connection>
+
+
+With `auto` set to `true` (default), the element performs a mqtt#Connect whenever
+the element is ready or the connection gets disconnected.
+
+Note: The `options` attribute must be double quoted JSON.
+
+You can disconnect the mqtt-connection explicitly by calling `disconnect` on the
+element. And manually connect if `auto` is set to `false` with `connect`
+
+@demo demo/index.html
+-->
 
 <dom-module id="mqtt-connection">
   <template>
-    <h1>mqtt-connection</h1>
   </template>
 </dom-module>
 
 <script>
+
+  'use strict';
+
   Polymer({
-    is: 'mqtt-connection'
+    is: 'mqtt-connection',
+    properties: {
+
+      /**
+       * If set to `true` the mqtt connection will be established after element is loaded.
+       * If the connection is disconnected the element will automatically try to reconnect to the MQTT-Broker
+       */
+      auto: {
+        type: Boolean,
+        readOnly: false,
+        notify: true,
+        value: true
+      },
+
+      /**
+       * Set the clean flag to `false` to receive QOS 1 and 2 messages while offline. The messages are delivered if the
+       * connection is re-establish with the broker.
+       */
+      clean: {
+        type: Boolean,
+        readOnly: false,
+        notify: true,
+        value: true
+      },
+
+      /**
+       * Indicates weather the mqtt client is connected to the mqtt broker or not
+       */
+      connected: {
+        type: Boolean,
+        readOnly: true,
+        notify: true,
+        value: false
+      },
+
+      /**
+       * Indicates weather the mqtt client is currently disconnecting the mqtt connection or not
+       */
+      disconnecting: {
+        type: Boolean,
+        readOnly: true,
+        notify: true,
+        value: false
+      },
+
+      /**
+       * The actual MQTT.js client that will be created on the first connect
+       */
+      client: {
+        type: Object,
+        readOnly: false,
+        notify: true,
+        value: null
+      },
+
+      /**
+       * The prefix of the option.clientId. If the option.clientId is not set a random ID will be generated prefixed
+       * with clientIdPrefix
+       */
+      clientIdPrefix: {
+        type: String,
+        value: 'mqttjs_'
+      },
+
+      /**
+       * The options are directly passed to MQTT.js
+       * For further documentation see https://github.com/mqttjs/MQTT.js/wiki/connection
+       * * options.protocolId :String The mqtt protocolId tha is send to the mqtt broker DEFAULT: "MQTT"
+       * * options.protocolVersion :number 4
+       * * options.keepalive :number 10
+       * * options.clientId :String
+       * * options.clean :boolean
+       * * options.username :String The username that is user to authenticate the connection with
+       * * options.password :String The password that will be used to authenticate the `user` at the mqtt broker
+       * * options.will :Object The clients will message that is published from the mqtt broker in behalf of the client
+       * if the connection is from the client to the mqtt broker is lost.
+       * * options.will.topic :String The topic of the will message of the client eg. "client/"
+       * * options.will.qos :number The QOS of the will message of the client
+       * * options.will.retain :boolean The retain flag of the will message of the client
+       */
+      options: {
+        type: Object,
+        readOnly: false,
+        notify: true,
+        value: {
+          //MQIsdp
+          protocolId: "MQTT",
+          protocolVersion: 4,
+          keepalive: 10,
+          reconnectPeriod: 1000,
+          clientId: "",
+          encoding: "string"
+        }
+      },
+
+      /**
+       * The url of the mqtt broker and can be on the following protocols: 'mqtt', 'mqtts', 'tcp', 'tls', 'ws', 'wss'.
+       * E.g ws://localhost:8080
+       */
+      url: {
+        type: String,
+        readOnly: false,
+        notify: true,
+        value: 'ws://127.0.0.1:80'
+      }
+    },
+    ready: function() {
+      console.log('ready');
+      this.connectClient();
+    },
+
+    attached: function() {
+      console.log('attached');
+    },
+
+    connectClient: function(){
+      if (mqtt){
+        this.options.clientId = this._generateClientId();
+        this.client = mqtt.connect(this.url, this.options);
+
+        this.client.on("connect", this._handelConnected.bind(this));
+
+        this.client.on("reconnect", this._handelReconnect.bind(this));
+
+        this.client.on("close", this._handelClose.bind(this));
+
+        this.client.on("offline", this._handelOffline.bind(this));
+
+        this.client.on("error", this._handelError.bind(this));
+
+        this.client.on("message", this._handelMessage.bind(this));
+
+      } else {
+        // failed to load mqtt.js
+        // TODO SKO tell the user about this and maybe log environment
+      }
+    },
+
+    /**
+     * Generates a random mqtt client ID
+     * @returns {string} the X digit mqtt client ID prefixed with 'mqttjs_'
+     * @private
+     */
+    _generateClientId: function(){
+      return 'mqttjs_' + Math.random().toString(16).substr(2, 8);
+    },
+
+    _handelConnected: function(){
+      console.log("_handelConnected");
+      this._setMqttConnected(this.client.connected);
+      this.fire("mqtt-connection-connected", {value: this.connected});
+    },
+    _handelReconnect: function(){
+      console.log("_handelReconnect");
+      this.fire("mqtt-connection-reconnect");
+    },
+
+    _handelClose: function(){
+      console.log("_handelClose")
+      this.fire("mqtt-connection-close");
+    },
+
+    _handelOffline: function(){
+      console.log("_handelOffline")
+      this._setMqttConnected(this.client.connected);
+      this.fire("mqtt-connection-offline", {value: this.connected});
+    },
+
+    _handelError: function(){
+      console.log("_handelError")
+      this.fire("mqtt-connection-error");
+    },
+
+    _handelMessage: function(topic, message, packet){
+      this.fire("mqtt-connection-message", {'topic': topic, 'message': message, 'packet': packet});
+      console.log("_handelMessage: %s %s %s", topic, message, packet)
+    },
+
+    _setMqttConnected: function(state) {
+      if (typeof state === "boolean") {
+        this._setConnected(state);
+      }
+    }
   });
 </script>

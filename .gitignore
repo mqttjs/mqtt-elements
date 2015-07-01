@@ -27,6 +27,8 @@ build/Release
 node_modules
 .idea
 bower_components
+selenium-standalone/
+chromedriver/
 
 #bower
 .bowerrc

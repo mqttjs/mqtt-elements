@@ -1,15 +1,41 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../mqtt-elements.html">
 
+
 <dom-module id="demo-element">
   <template>
-    <mqtt-connection></mqtt-connection>
+    <div>Connection status: <span>{{connected}}</span></div>
+    <textarea name="events" id="events" cols="30" rows="10"></textarea>
+    <mqtt-connection url="ws://127.0.0.1:3000" connected="{{connected}}">
+    </mqtt-connection>
   </template>
 </dom-module>
 
 <script>
   Polymer({
-    is: 'demo-element'
+    is: 'demo-element',
+    listeners: {
+      'mqtt-connection-connected': 'event',
+      'mqtt-connection-disconnected': 'event',
+      'mqtt-connection-reconnect': 'event',
+      'mqtt-connection-close': 'event',
+      'mqtt-connection-offline': 'event',
+      'mqtt-connection-error': 'event'
+
+    },
+
+    event: function (event, value) {
+      if(value) {
+        console.log(value);
+        this.appendTextToTextArea(event.type);
+      } else {
+        this.appendTextToTextArea(event.type);
+      }
+    },
+
+    appendTextToTextArea: function(text){
+      this.$.events.textContent = this.$.events.textContent + text + "\n";
+    }
   });
 </script>
 
