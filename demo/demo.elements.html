@@ -6,8 +6,10 @@
   <template>
     <div>Connection status: <span>{{connected}}</span></div>
     <textarea name="events" id="events" cols="30" rows="10"></textarea>
+
     <mqtt-connection url="ws://127.0.0.1:3000" connected="{{connected}}">
     </mqtt-connection>
+
   </template>
 </dom-module>
 
