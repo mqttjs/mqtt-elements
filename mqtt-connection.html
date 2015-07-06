@@ -34,6 +34,43 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
   Polymer({
     is: 'mqtt-connection',
+
+    /**
+     * Fired when a connection is connected.
+     *
+     * @event mqtt-connection-connected
+     */
+
+    /**
+     * Fired when a connection is reconnected.
+     *
+     * @event mqtt-connection-reconnected
+     */
+
+    /**
+     * Fired when a connection is closed.
+     *
+     * @event mqtt-connection-close
+     */
+
+    /**
+     * Fired when a connection is closed.
+     *
+     * @event mqtt-connection-offline
+     */
+
+    /**
+     * Fired when a connection error occurs.
+     *
+     * @event mqtt-connection-error
+     */
+
+    /**
+     * Fired when a mqtt message is received .
+     *
+     * @event mqtt-message
+     */
+
     properties: {
 
       /**
@@ -177,7 +214,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
      * @private
      */
     _generateClientId: function(){
-      return 'mqttjs_' + Math.random().toString(16).substr(2, 8);
+      return this.clientIdPrefix + Math.random().toString(16).substr(2, 8);
     },
 
     _handelConnected: function(){
@@ -207,7 +244,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
     },
 
     _handelMessage: function(topic, message, packet){
-      this.fire("mqtt-connection-message", {'topic': topic, 'message': message, 'packet': packet});
+      this.fire("mqtt-message", {'topic': topic, 'message': message, 'packet': packet});
       console.log("_handelMessage: %s %s %s", topic, message, packet)
     },
 
