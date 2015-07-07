@@ -1,0 +1,46 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+The `mqtt-message` element
+
+@demo demo/index.html
+-->
+
+<dom-module id="mqtt-message">
+  <template>
+  </template>
+</dom-module>
+
+<script>
+
+  'use strict';
+
+  Polymer({
+    is: 'mqtt-message',
+
+    properties: {
+      qos: {
+        type: Number,
+        value: 0
+      },
+
+      topic: {
+        type: String,
+        value: ""
+      },
+
+      payload: {
+        type: Object,
+        value: {}
+      }
+    },
+
+    ready: function() {
+      console.log('ready');
+    },
+
+    attached: function() {
+      console.log('attached');
+    }
+  });
+</script>
