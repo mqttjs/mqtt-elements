@@ -25,6 +25,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
 <dom-module id="mqtt-connection">
   <template>
+    <content></content>
   </template>
 </dom-module>
 
@@ -74,14 +75,13 @@ element. And manually connect if `auto` is set to `false` with `connect`
     properties: {
 
       /**
-       * If set to `true` the mqtt connection will be established after element is loaded.
-       * If the connection is disconnected the element will automatically try to reconnect to the MQTT-Broker
+       * If set to `true` with just adding `disable-auto the mqtt connection will **NOT** be established after the element is loaded.
        */
-      auto: {
+      disableAuto: {
         type: Boolean,
         readOnly: false,
         notify: true,
-        value: true
+        value: false
       },
 
       /**
@@ -174,11 +174,20 @@ element. And manually connect if `auto` is set to `false` with `connect`
         readOnly: false,
         notify: true,
         value: 'ws://127.0.0.1:80'
+      },
+
+      subscriptions: {
+        type: Array,
+        value: []
       }
     },
     ready: function() {
       console.log('ready');
-      this.connectClient();
+      this._loadMqttSubscriptions();
+      console.log("foo");
+      if (this.auto) {
+        this.connectClient();
+      }
     },
 
     attached: function() {
@@ -251,6 +260,16 @@ element. And manually connect if `auto` is set to `false` with `connect`
     _setMqttConnected: function(state) {
       if (typeof state === "boolean") {
         this._setConnected(state);
+      }
+    },
+
+    _loadMqttSubscriptions: function() {
+      // TODO sandro-k validate query and refactor to forEach
+      var items = this.querySelectorAll("mqtt-subscription");
+      console.log(items);
+      console.log(this.subscriptions);
+      for (var i = 0; i < items.length; i++ ) {
+        this.subscriptions.push(items[i]);
       }
     }
   });
