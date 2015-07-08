@@ -24,7 +24,7 @@
     //  Setp 3: Test the element
     test('It should be possible to change <mqtt-connection>.disableAuto', function() {
       assert.isFalse(mqttElement.disableAuto);
-      mqttElement.disableAuto = false;
+      mqttElement.disableAuto = true;
       assert.isTrue(mqttElement.disableAuto);
     });
 
