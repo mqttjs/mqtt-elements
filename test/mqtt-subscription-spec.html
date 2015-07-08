@@ -37,6 +37,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.isNotNull(mqttSubscription);
       assert.notTypeOf(mqttSubscription, 'undefined');
     });
+
+    test('mqtt-subscription.qos is a number', function() {
+      assert.isNumber(mqttSubscription.qos);
+      assert.strictEqual(mqttSubscription.qos, 0)
+    });
+
+    test('mqtt-subscription.topic is a string', function() {
+      assert.typeOf(mqttSubscription.topic, 'string');
+      assert.strictEqual(mqttSubscription.topic, '')
+    });
+
+    test('mqtt-subscription.messages is a array', function() {
+      assert.typeOf(mqttSubscription.messages, 'array');
+      assert.deepEqual(mqttSubscription.messages, [])
+    });
+
+    test('mqtt-subscription.subscribed is a boolean', function() {
+      assert.isBoolean(mqttSubscription.subscribed);
+      assert.isFalse(mqttSubscription.subscribed)
+    });
+    
+
   });
 </script>
 
