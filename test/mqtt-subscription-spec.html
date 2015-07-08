@@ -35,7 +35,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     //  Setp 3: Test the element
     test('Element is not null', function() {
       assert.isNotNull(mqttSubscription);
-      assert.notTypeOf(mqttSubscription, 'undefined');
+      assert.typeOf(mqttSubscription, 'object');
     });
 
     test('mqtt-subscription.qos is a number', function() {
@@ -57,7 +57,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.isBoolean(mqttSubscription.subscribed);
       assert.isFalse(mqttSubscription.subscribed)
     });
-    
 
   });
 </script>
