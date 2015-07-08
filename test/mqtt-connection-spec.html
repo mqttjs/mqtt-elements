@@ -15,10 +15,12 @@
 <body>
 
 <mqtt-connection></mqtt-connection>
+<mqtt-connection id="auto" disable-auto></mqtt-connection>
 
 <script>
   //  Setp 2: get the element
   var mqttElement =  document.querySelector('mqtt-connection');
+  var mqttDisabledAuto =  document.querySelector('mqtt-connection#auto');
 
   suite('mqtt-connection-spec', function() {
     //  Setp 3: Test the element
@@ -37,14 +39,26 @@
       assert.isFalse(mqttElement.connected);
     });
 
-    test('mqtt-connection.disconnecting is boolean', function() {
+    test('mqtt-connection.disconnecting is booelan and false', function() {
       assert.isBoolean(mqttElement.disconnecting, 'mqtt-connection.disconnecting should be a boolean');
       assert.isFalse(mqttElement.disconnecting);
     });
 
-    test('mqtt-connection.auto is boolean', function() {
-      assert.isBoolean(mqttElement.auto, 'mqtt-connection.auto should be a boolean');
-      assert.isTrue(mqttElement.auto);
+    test('mqtt-connection.disableAuto is boolean and true', function() {
+      assert.isBoolean(mqttElement.disableAuto, 'mqtt-connection.auto should be a boolean');
+      assert.isFalse(mqttElement.disableAuto);
+    });
+
+    test('mqtt-connection#auto.disableAuto is boolean', function() {
+      assert.isBoolean(mqttDisabledAuto.disableAuto, 'mqtt-connection.auto should be a boolean');
+      assert.isTrue(mqttDisabledAuto.disableAuto);
+    });
+
+    test('mqtt-connection.auto is false', function() {
+      assert.isBoolean(mqttElement.disableAuto, 'mqtt-connection.auto should be a boolean');
+      assert.isFalse(mqttElement.disableAuto);
+      mqttElement.disableAuto = true;
+      assert.isTrue(mqttElement.disableAuto);
     });
 
     test('mqtt-connection.clientIdPrefix is String', function() {
