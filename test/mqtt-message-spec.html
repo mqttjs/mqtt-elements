@@ -40,7 +40,7 @@
 
     test('mqtt-message.payload is a object', function() {
       assert.typeOf(mqttMessage.payload, 'object');
-      assert.equal(mqttMessage.payload, {})
+      expect(mqttMessage.payload).to.be.an('object')
     });
 
     test('mqtt-message.retained is a boolean', function() {
