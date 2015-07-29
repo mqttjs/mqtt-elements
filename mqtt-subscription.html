@@ -1,0 +1,68 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+The `mqtt-subscription` element
+
+@demo demo/index.html
+-->
+
+<dom-module id="mqtt-subscription">
+  <template>
+  </template>
+</dom-module>
+
+<script>
+
+  'use strict';
+
+  Polymer({
+    is: 'mqtt-subscription',
+
+    /**
+     * Fired when a subscription is subscribed .
+     *
+     * @event mqtt-subscription-subscribed
+     */
+
+    /**
+     * Fired when a message is receive for this subscription.
+     *
+     * @event mqtt-subscription-message
+     */
+
+    properties: {
+      qos: {
+        type: Number,
+        value: 0
+      },
+
+      topic: {
+        type: String,
+        value: ""
+      },
+
+      messages: {
+        type: Array,
+        value: []
+      },
+
+      subscribed: {
+        type: Boolean,
+        value: false
+      }
+
+    },
+
+    ready: function() {
+      console.log('ready');
+    },
+
+    attached: function() {
+      console.log('attached');
+    },
+
+    _handelSubscriptionSubscribed: function() {
+      this.fire("mqtt-subscription-subscribed");
+    }
+  });
+</script>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-subscription-spec</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../mqtt-elements.html">
+
+</head>
+<body>
+
+<mqtt-subscription></mqtt-subscription>
+
+<script>
+  //  Setp 2: get the element
+  var mqttSubscription =  document.querySelector('mqtt-subscription');
+
+
+  suite('mqtt-subscription-spec', function() {
+    //  Setp 3: Test the element
+    test('Element is not null', function() {
+      assert.isNotNull(mqttSubscription);
+      assert.typeOf(mqttSubscription, 'object');
+    });
+
+    test('mqtt-subscription.qos is a number', function() {
+      assert.isNumber(mqttSubscription.qos);
+      assert.strictEqual(mqttSubscription.qos, 0)
+    });
+
+    test('mqtt-subscription.topic is a string', function() {
+      assert.typeOf(mqttSubscription.topic, 'string');
+      assert.strictEqual(mqttSubscription.topic, '')
+    });
+
+    test('mqtt-subscription.messages is a array', function() {
+      assert.typeOf(mqttSubscription.messages, 'array');
+      assert.deepEqual(mqttSubscription.messages, [])
+    });
+
+    test('mqtt-subscription.subscribed is a boolean', function() {
+      assert.isBoolean(mqttSubscription.subscribed);
+      assert.isFalse(mqttSubscription.subscribed)
+    });
+
+  });
+</script>
+
+</body>
+</html>
