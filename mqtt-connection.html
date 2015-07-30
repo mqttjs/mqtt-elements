@@ -182,16 +182,13 @@ element. And manually connect if `auto` is set to `false` with `connect`
       }
     },
     ready: function() {
-      console.log('ready');
       this._loadMqttSubscriptions();
-      console.log("foo");
-      if (this.auto) {
+      if (!this.disableAuto) {
         this.connectClient();
       }
     },
 
     attached: function() {
-      console.log('attached');
     },
 
     connectClient: function(){
@@ -227,47 +224,53 @@ element. And manually connect if `auto` is set to `false` with `connect`
     },
 
     _handelConnected: function(){
-      console.log("_handelConnected");
+//      console.log("_handelConnected");
       this._setMqttConnected(this.client.connected);
       this.fire("mqtt-connection-connected", {value: this.connected});
     },
     _handelReconnect: function(){
-      console.log("_handelReconnect");
+//      console.log("_handelReconnect");
       this.fire("mqtt-connection-reconnect");
     },
 
     _handelClose: function(){
-      console.log("_handelClose")
+//      console.log("_handelClose")
       this.fire("mqtt-connection-close");
     },
 
     _handelOffline: function(){
-      console.log("_handelOffline")
+//      console.log("_handelOffline")
       this._setMqttConnected(this.client.connected);
       this.fire("mqtt-connection-offline", {value: this.connected});
     },
 
     _handelError: function(){
-      console.log("_handelError")
+//      console.log("_handelError")
       this.fire("mqtt-connection-error");
     },
 
     _handelMessage: function(topic, message, packet){
       this.fire("mqtt-message", {'topic': topic, 'message': message, 'packet': packet});
-      console.log("_handelMessage: %s %s %s", topic, message, packet)
     },
 
     _setMqttConnected: function(state) {
       if (typeof state === "boolean") {
         this._setConnected(state);
       }
+
+      if (this.subscriptions.length > 0){
+        for (var i = 0; i < this.subscriptions.length; i++ ) {
+          var sub = this.subscriptions[i];
+          if (sub && sub.topic){
+            this.client.subscribe(sub.topic);
+          }
+        }
+      }
     },
 
     _loadMqttSubscriptions: function() {
       // TODO sandro-k validate query and refactor to forEach
       var items = this.querySelectorAll("mqtt-subscription");
-      console.log(items);
-      console.log(this.subscriptions);
       for (var i = 0; i < items.length; i++ ) {
         this.subscriptions.push(items[i]);
       }
