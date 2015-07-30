@@ -53,14 +53,6 @@ The `mqtt-subscription` element
 
     },
 
-    ready: function() {
-      console.log('ready');
-    },
-
-    attached: function() {
-      console.log('attached');
-    },
-
     _handelSubscriptionSubscribed: function() {
       this.fire("mqtt-subscription-subscribed");
     }
