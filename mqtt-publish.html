@@ -1,0 +1,63 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+The `mqtt-subscription` element
+
+@demo demo/index.html
+-->
+
+<dom-module id="mqtt-publish">
+  <template>
+  </template>
+</dom-module>
+
+<script>
+
+  'use strict';
+
+  Polymer({
+    is: 'mqtt-publish',
+
+    /**
+     * Fired when a publication is published.
+     *
+     * @event mqtt-publication-published
+     * @param {{
+     *   topic:  string,
+     *   qos: number,
+     *   retained: boolean
+     * }}
+     */
+
+    properties: {
+
+      qos: {
+        type: Number,
+        value: 0
+      },
+
+      topic: {
+        type: String,
+        value: ""
+      },
+
+      messages: {
+        type: Object,
+        value: {}
+      },
+
+      published: {
+        type: Boolean,
+        value: false
+      }
+
+    },
+    _handelPublicationPublished: function() {
+      this.fire("mqtt-publication-published");
+    },
+
+    attached: function(){
+      console.log("attached");
+    }
+  });
+</script>
