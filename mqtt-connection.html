@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
-<script src="dist/browserMqtt.js"></script>
+<link rel="import" href="mqttjs.html">
+
 
 <!--
 The `mqtt-connection` element exposes mqtt connection functionality to the web.
@@ -12,7 +13,7 @@ Currently the element supports `ws` connections.
     </mqtt-connection>
 
 
-With `auto` set to `true` (default), the element performs a mqtt#Connect whenever
+With `auto` set to `true`, the element performs a mqtt#Connect whenever
 the element is ready or the connection gets disconnected.
 
 Note: The `options` attribute must be double quoted JSON.
@@ -25,7 +26,9 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
 <dom-module id="mqtt-connection">
   <template>
-    <content></content>
+    <content id="mqttSubscriptions" select="mqtt-subscription"></content>
+    <content id="mqttPublications" select="mqtt-publish"></content>
+    <content id="content"></content>
   </template>
 </dom-module>
 
@@ -77,11 +80,10 @@ element. And manually connect if `auto` is set to `false` with `connect`
       /**
        * If set to `true` with just adding `disable-auto the mqtt connection will **NOT** be established after the element is loaded.
        */
-      disableAuto: {
+      auto: {
         type: Boolean,
         readOnly: false,
-        notify: true,
-        value: false
+        value: false,
       },
 
       /**
@@ -91,8 +93,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       clean: {
         type: Boolean,
         readOnly: false,
-        notify: true,
-        value: true
+        value: true,
       },
 
       /**
@@ -102,7 +103,8 @@ element. And manually connect if `auto` is set to `false` with `connect`
         type: Boolean,
         readOnly: true,
         notify: true,
-        value: false
+        value: false,
+        observer: '_connectedChanged',
       },
 
       /**
@@ -112,17 +114,18 @@ element. And manually connect if `auto` is set to `false` with `connect`
         type: Boolean,
         readOnly: true,
         notify: true,
-        value: false
+        value: false,
       },
 
       /**
-       * The actual MQTT.js client that will be created on the first connect
+       * The actual MQTT.js client that will be created on the first connect or injected
+       * via `<mqtt-connection client="[[client]]">`
        */
       client: {
         type: Object,
         readOnly: false,
         notify: true,
-        value: null
+        observer: '_clientChanged',
       },
 
       /**
@@ -131,7 +134,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
        */
       clientIdPrefix: {
         type: String,
-        value: 'mqttjs_'
+        value: 'mqttjs_',
       },
 
       /**
@@ -154,14 +157,16 @@ element. And manually connect if `auto` is set to `false` with `connect`
         type: Object,
         readOnly: false,
         notify: true,
-        value: {
-          //MQIsdp
-          protocolId: "MQTT",
-          protocolVersion: 4,
-          keepalive: 10,
-          reconnectPeriod: 1000,
-          clientId: "",
-          encoding: "string"
+        value: function () {
+          return {
+            //MQIsdp
+            protocolId: "MQTT",
+            protocolVersion: 4,
+            keepalive: 10,
+            reconnectPeriod: 1000,
+            clientId: "",
+            encoding: "string",
+          }
         }
       },
 
@@ -171,46 +176,81 @@ element. And manually connect if `auto` is set to `false` with `connect`
        */
       url: {
         type: String,
-        readOnly: false,
-        notify: true,
-        value: 'ws://127.0.0.1:80'
       },
 
       subscriptions: {
         type: Array,
-        value: []
+        value: function () {
+          return [];
+        }
       }
     },
-    ready: function() {
+
+//    listeners:
+//    mqtt-subscription-attached
+
+    listeners: {
+      'mqtt-subscription-register': '_elementRegistered',
+      'mqtt-subscription-unregister': '_elementUnregistered',
+    },
+
+    _elementRegistered: function(event){
+//      console.log("_elementRegistered", arguments);
+      // adding the element to the subscriptions
+      this.push("subscriptions", event.target);
+      // setting this connection as the parrent on the connection
+      event.target._parentConnection = this;
+
+      this._createSubscription(event.target);
+    },
+
+    _elementUnregistered: function(event){
+//      console.log("_elementUnregistered", arguments);
+      var target = event.detail.target;
+      if (target) {
+        if (target.topic){
+          this.client.unsubscribe(target.topic);
+        }
+        var index = this.subscriptions.indexOf(target);
+        if (index > -1) {
+          this.splice("subscriptions", index, 1);
+        }
+      }
+    },
+
+    ready: function () {
+    },
+
+    attached: function () {
+
       this._loadMqttSubscriptions();
-      if (!this.disableAuto) {
+
+      if(this.auto) {
         this.connectClient();
       }
     },
 
-    attached: function() {
-    },
-
-    connectClient: function(){
-      if (mqtt){
+    connectClient: function () {
+//      console.log("connectClient");
+      if(mqtt) {
         this.options.clientId = this._generateClientId();
         this.client = mqtt.connect(this.url, this.options);
-
-        this.client.on("connect", this._handelConnected.bind(this));
-
-        this.client.on("reconnect", this._handelReconnect.bind(this));
-
-        this.client.on("close", this._handelClose.bind(this));
-
-        this.client.on("offline", this._handelOffline.bind(this));
-
-        this.client.on("error", this._handelError.bind(this));
-
-        this.client.on("message", this._handelMessage.bind(this));
-
       } else {
         // failed to load mqtt.js
         // TODO SKO tell the user about this and maybe log environment
+        console.error("<mqtt-connection> could not load MQTT.js, pleas check your setup");
+      }
+    },
+
+    _clientChanged: function (client, old) {
+      if(client) {
+        client
+            .on("reconnect", this._handelReconnect.bind(this))
+            .on("connect", this._handelConnected.bind(this))
+            .on("close", this._handelClose.bind(this))
+            .on("offline", this._handelOffline.bind(this))
+            .on("error", this._handelError.bind(this))
+            .on("message", this._handelMessage.bind(this))
       }
     },
 
@@ -219,61 +259,75 @@ element. And manually connect if `auto` is set to `false` with `connect`
      * @returns {string} the X digit mqtt client ID prefixed with 'mqttjs_'
      * @private
      */
-    _generateClientId: function(){
+    _generateClientId: function () {
       return this.clientIdPrefix + Math.random().toString(16).substr(2, 8);
     },
 
-    _handelConnected: function(){
-//      console.log("_handelConnected");
+    _handelConnected: function () {
       this._setMqttConnected(this.client.connected);
       this.fire("mqtt-connection-connected", {value: this.connected});
     },
-    _handelReconnect: function(){
-//      console.log("_handelReconnect");
+    _handelReconnect: function () {
       this.fire("mqtt-connection-reconnect");
     },
 
-    _handelClose: function(){
-//      console.log("_handelClose")
+    _handelClose: function () {
       this.fire("mqtt-connection-close");
     },
 
-    _handelOffline: function(){
-//      console.log("_handelOffline")
+    _handelOffline: function () {
       this._setMqttConnected(this.client.connected);
       this.fire("mqtt-connection-offline", {value: this.connected});
     },
 
-    _handelError: function(){
-//      console.log("_handelError")
+    _handelError: function () {
       this.fire("mqtt-connection-error");
     },
 
-    _handelMessage: function(topic, message, packet){
+    _handelMessage: function (topic, message, packet) {
       this.fire("mqtt-message", {'topic': topic, 'message': message, 'packet': packet});
     },
 
-    _setMqttConnected: function(state) {
-      if (typeof state === "boolean") {
+    _setMqttConnected: function (state) {
+      if(typeof state === "boolean") {
         this._setConnected(state);
-      }
-
-      if (this.subscriptions.length > 0){
-        for (var i = 0; i < this.subscriptions.length; i++ ) {
-          var sub = this.subscriptions[i];
-          if (sub && sub.topic){
-            this.client.subscribe(sub.topic);
-          }
-        }
       }
     },
 
-    _loadMqttSubscriptions: function() {
-      // TODO sandro-k validate query and refactor to forEach
-      var items = this.querySelectorAll("mqtt-subscription");
-      for (var i = 0; i < items.length; i++ ) {
-        this.subscriptions.push(items[i]);
+    _connectedChanged: function (connected, old) {
+      if(connected) {
+//        this._createSubscriptions();
       }
+    },
+
+    _createSubscription: function(sub){
+      this.client.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribed.bind(sub));
+    },
+
+//    _createSubscriptions: function () {
+//      var items = Polymer.dom(this.$.mqttSubscriptions).getDistributedNodes();
+//      console.log("_loadMqttSubscriptions", this.id ,items);
+//
+//      if(this.subscriptions.length > 0) {
+//        for (var i = 0; i < this.subscriptions.length; i++) {
+//          var sub = this.subscriptions[i];
+//          if(sub && sub.topic) {
+////            console.log("_createSubscriptions", this.options.clientId, this.id);
+//            this.client.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribed.bind(sub));
+//          }
+//        }
+//      }
+//    },
+
+    _loadMqttSubscriptions: function () {
+//      // TODO sandro-k validate query and refactor to forEach
+//      var items = Polymer.dom(this.$.mqttSubscriptions).getDistributedNodes();
+//      console.log("_loadMqttSubscriptions", this.id ,items);
+//
+//      for (var i = 0; i < items.length; i++) {
+//        this.push("subscriptions", items[i]);
+//      }
+
     }
   });
 </script>
