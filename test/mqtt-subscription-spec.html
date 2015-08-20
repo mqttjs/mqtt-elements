@@ -33,9 +33,12 @@
       assert.strictEqual(mqttSubscription.qos, 0)
     });
 
-    test('mqtt-subscription.topic is a string', function() {
-      assert.typeOf(mqttSubscription.topic, 'string');
-      assert.strictEqual(mqttSubscription.topic, '')
+    test('mqtt-subscription.topic', function() {
+      assert.isUndefined(mqttSubscription.topic);
+    });
+
+    test('mqtt-subscription.lastMessage', function() {
+      assert.isUndefined(mqttSubscription.lastMessage);
     });
 
     test('mqtt-subscription.messages is a array', function() {

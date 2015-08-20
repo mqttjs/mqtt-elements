@@ -176,6 +176,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
        */
       url: {
         type: String,
+        value: '',
       },
 
       subscriptions: {
@@ -254,6 +255,10 @@ element. And manually connect if `auto` is set to `false` with `connect`
       }
     },
 
+    _getConnectionStatusofConnection: function(client){
+      return client ? client.connected : false
+    },
+
     /**
      * Generates a random mqtt client ID
      * @returns {string} the X digit mqtt client ID prefixed with 'mqttjs_'
@@ -264,7 +269,8 @@ element. And manually connect if `auto` is set to `false` with `connect`
     },
 
     _handelConnected: function () {
-      this._setMqttConnected(this.client.connected);
+      console.log("_handelConnected");
+      this._setMqttConnected(this._getConnectionStatusofConnection(this.client));
       this.fire("mqtt-connection-connected", {value: this.connected});
     },
     _handelReconnect: function () {
@@ -276,7 +282,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
     },
 
     _handelOffline: function () {
-      this._setMqttConnected(this.client.connected);
+      this._setMqttConnected(this._getConnectionStatusofConnection(this.client));
       this.fire("mqtt-connection-offline", {value: this.connected});
     },
 
@@ -301,7 +307,9 @@ element. And manually connect if `auto` is set to `false` with `connect`
     },
 
     _createSubscription: function(sub){
-      this.client.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribed.bind(sub));
+      if (this.client){
+        this.client.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribed.bind(sub));
+      }
     },
 
 //    _createSubscriptions: function () {

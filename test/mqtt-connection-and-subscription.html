@@ -14,11 +14,11 @@
 </head>
 <body>
 
-<mqtt-connection auto="false" url="ws://127.0.0.1:3000" disable-auto>
+<mqtt-connection url="ws://127.0.0.1:3000">
   <mqtt-subscription topic="mqttjs/test"></mqtt-subscription>
 </mqtt-connection>
 
-<mqtt-connection id="multiple" url="ws://127.0.0.1:3000" disable-auto>
+<mqtt-connection id="multiple" url="ws://127.0.0.1:3000">
   <mqtt-subscription topic="mqttjs/test1"></mqtt-subscription>
   <mqtt-subscription topic="mqttjs/test2" qos="1"></mqtt-subscription>
   <mqtt-subscription topic="mqttjs/test3" qos="2"></mqtt-subscription>
@@ -39,16 +39,12 @@
 
     test('mqtt-connection has one subscriptions', function() {
       assert.typeOf(mqttConnection.subscriptions, 'array');
-      console.log(mqttConnection);
-      console.log(mqttConnection.subscriptions);
-//      expect(mqttConnection.subscriptions).to.have.length.of(1);
+      expect(mqttConnection.subscriptions).to.have.length.of(1);
     });
 
     test('mqtt-connection#multiple has three subscriptions', function() {
       assert.typeOf(mqttConnectionMulti.subscriptions, 'array');
-      console.log(mqttConnectionMulti);
-      console.log(mqttConnectionMulti.subscriptions);
-//      expect(mqttConnectionMulti.subscriptions).to.have.length.of(3);
+      expect(mqttConnectionMulti.subscriptions).to.have.length.of(3);
     });
 
   });
