@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="mqtt-subscription-regestration-behaviour.html">
 
 <!--
 The `mqtt-subscription` element
@@ -22,39 +23,73 @@ The `mqtt-subscription` element
      * Fired when a subscription is subscribed .
      *
      * @event mqtt-subscription-subscribed
+     * @param {{
+     *   topic:  string,
+     *   qos: number
+     * }}
      */
 
     /**
      * Fired when a message is receive for this subscription.
      *
      * @event mqtt-subscription-message
+     * @param {{
+     *   topic:  string,
+     *   message: Object
+     *   qos: number,
+     *   retained: boolean,
+     *   dub: boolean
+     * }}
      */
 
     properties: {
+
       qos: {
         type: Number,
-        value: 0
+        value: 0,
       },
 
       topic: {
         type: String,
-        value: ""
       },
 
       messages: {
         type: Array,
-        value: []
+        readOnly: true,
+        notify: true,
+        value: [],
+      },
+
+      lastMessage: {
+        type: Object,
+        readOnly: true,
+        notify: true,
       },
 
       subscribed: {
         type: Boolean,
-        value: false
+        readOnly: true,
+        notify: true,
+        value: false,
       }
 
     },
 
+    behaviors: [MqttElements.MqttSubscriptionRegestrationBehaviour],
+
+    ready: function() {
+//      console.log('ready');
+    },
+
+    detached: function() {
+      console.log('detached', this.topic);
+    },
+
     _handelSubscriptionSubscribed: function() {
-      this.fire("mqtt-subscription-subscribed");
+      this.fire("mqtt-subscription-subscribed", {topic: this.topic, qos: this.qos});
+      this._setSubscribed(true);
     }
+
+
   });
 </script>
