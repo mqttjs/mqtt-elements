@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>inject &lt;mqtt-connection&gt; Demo</title>
+  <script src="../../webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="../mqtt-elements.html">
+  <link rel="import" href="../../paper-button/paper-button.html">
+  <link rel="import" href="../../paper-input/paper-input.html">
+  <link rel="import" href="../../paper-styles/demo-pages.html">
+</head>
+
+<body unresolved>
+<template is="dom-bind">
+
+
+  <mqtt-connection id="connection" url="ws://127.0.0.1:3005" connected="{{connected}}" client="{{client}}">
+    <mqtt-subscription topic="foo/bar"
+                       number-of-messages="Infinity"
+                       last-message="{{lastMessageA}}"
+                       messages="{{messagesA}}"
+                       subscribed="{{abcSub}}"></mqtt-subscription>
+  </mqtt-connection>
+
+  <mqtt-connection id="con2" client="{{client}}" on-mqtt-message="_handelMqttMessage">
+    <mqtt-subscription topic="xyz/abc"
+                       number-of-messages="1"
+                       last-message="{{lastMessageB}}"
+                       messages="{{messagesB}}"
+                       subscribed="{{xyzSub}}"></mqtt-subscription>
+    <mqtt-publish topic="foo/bar" payload="[[value]]" auto></mqtt-publish>
+  </mqtt-connection>
+
+  <div class="layout wrap center-center">
+    <div class="vertical-section">
+      <h1>&lt;mqtt-connection&gt;</h1>
+      <paper-input label="MQTT-Broker URL" value="{{url}}"></paper-input>
+      <paper-input label="MQTT-Broker Port" value="{{port}}"></paper-input>
+
+      <paper-button on-tap="connect">connect</paper-button>
+      <paper-button on-tap="disconnect">disconnect</paper-button>
+    </div>
+
+    <div class="vertical-section">
+      <h3>Connection Status <span>[[connected]]</span></h3>
+      <paper-button on-tap="_sendMessage2">Send Message2</paper-button>
+    </div>
+
+    <div class="vertical-section">
+      <paper-input label="topic" value="{{topic}}"></paper-input>
+      <paper-input label="Payload" char-counter value="{{value}}"></paper-input>
+      <paper-button raised on-tap="_sendMessage">Send Message</paper-button>
+    </div>
+
+  </div>
+
+
+
+
+
+  <div>
+    ABC: <span>[[abcSub]]</span>
+    Message: <span>[[lastMessageA.parsedPayload]]</span>
+  </div>
+  <div>
+    <h1>messagesA</h1>
+
+    <template is="dom-repeat" items="{{messagesA}}">
+      <div>
+        Topic: <span>{{item.topic}}</span>
+        Payload: <span>{{item.parsedPayload}}</span>
+        Qos: <span>{{item.message.qos}}</span>
+        dup: <span>{{item.message.dup}}</span>
+        retain: <span>{{item.message.retain}}</span>
+      </div>
+    </template>
+  </div>
+
+  <div>
+    <h1>messagesB</h1>
+
+    <template is="dom-repeat" items="{{messagesB}}">
+      <div>
+        Topic: <span>{{item.topic}}</span>
+        Payload: <span>{{item.parsedPayload}}</span>
+        Qos: <span>{{item.message.qos}}</span>
+        dup: <span>{{item.message.dup}}</span>
+        retain: <span>{{item.message.retain}}</span>
+      </div>
+    </template>
+  </div>
+
+  <div id="content">
+    <h1>
+      All Messages
+    </h1>
+    <template is="dom-repeat" items="{{messages}}">
+      <div>
+        <span>{{item.topic}}</span>
+        <span>{{item.message}}</span>
+      </div>
+    </template>
+  </div>
+</template>
+
+
+<script>
+  var demo = document.querySelector('template[is="dom-bind"]');
+  var content = document.querySelector('#content');
+  var connection = document.querySelector('#connection');
+
+  demo.messages = [];
+
+  demo._sendMessage = function (event) {
+    this.$.connection.publish("foo/bar", "hello world" + this.messages.length);
+  };
+
+  demo._sendMessage2 = function (event) {
+    this.$.con2.publish("xyz/abc", "something else" + this.messages.length);
+  };
+
+
+  demo._handelMqttMessage = function (event, message) {
+    if(message && message.topic) {
+      this.push('messages', {
+        topic: message.topic,
+        message: String.fromCharCode.apply(null, message.message)
+      });
+    }
+  };
+
+
+  demo.parseMessage = function (message) {
+    return String.fromCharCode.apply(null, message.message.payload);
+  };
+
+  demo.disconnect = function () {
+    this.$.connection.disconnect();
+  };
+
+  demo.connect = function () {
+    this.$.connection.connect();
+  };
+
+  demo.url = "127.0.0.1";
+  demo.port = 3005;
+  demo.topic = "foo/bar"
+
+
+</script>
+
+<script src="../dist/setImmediate.js"></script>
+</body>
+</html>
