@@ -4,6 +4,23 @@
 <!--
 The `mqtt-subscription` element
 
+creates a mqtt subscription to a mqtt topic. Place the element within a `mqtt-connection` to create the binding between
+the connection and the subscription. The flowing example
+
+```
+<mqtt-connection >
+    <mqtt-subscription
+        topic="foo/bar"
+        number-of-messages="Infinity"
+        last-message="{{lastMessage}}"
+        messages="{{messages}}"
+        subscribed="{{subscribed}}"></mqtt-subscription>
+  </mqtt-connection>
+```
+
+creates a subscription to the topic "foo/bar" and stores all received messages within `messages`. The last messages will
+be bound to `lastMessage`. `subscribed` indicates whether the subscription is subscribed or not.
+
 @demo demo/index.html
 -->
 
@@ -24,7 +41,17 @@ The `mqtt-subscription` element
      *
      * @event mqtt-subscription-subscribed
      * @param {{
-     *   topic:  string,
+     *   topic: string,
+     *   qos: number
+     * }}
+     */
+
+    /**
+     * Fired when a subscription is unsubscribed .
+     *
+     * @event mqtt-subscription-unsubscribed
+     * @param {{
+     *   topic: string,
      *   qos: number
      * }}
      */
@@ -44,52 +71,205 @@ The `mqtt-subscription` element
 
     properties: {
 
+      /**
+       * The qos the subscription is made to
+       * @type Number
+       */
       qos: {
         type: Number,
         value: 0,
       },
 
+      /**
+       * The
+       * @type String
+       */
       topic: {
         type: String,
       },
 
+      /**
+       * The number of messages that are sored in `messages` use `<mqtt-subscription number-of-messages="Infinity">` to
+       * store every message
+       * @type Number [1..Infinity]
+       */
+      numberOfMessages: {
+        type: Number,
+        value: 1,
+        observer: '_numberOfMessagesChanged'
+      },
+
+      /**
+       * An array of messages of the `numberOfMessages` number of messages recieved
+       * @type Array
+       */
       messages: {
         type: Array,
         readOnly: true,
         notify: true,
-        value: [],
+        value: function(){
+          return [];
+        },
       },
 
+      /**
+       * The last message received
+       * @type Object
+       */
       lastMessage: {
         type: Object,
         readOnly: true,
         notify: true,
       },
 
+      /**
+       * Indicating that the subscription is successfully subscribed with the mqtt broker
+       */
       subscribed: {
         type: Boolean,
         readOnly: true,
         notify: true,
         value: false,
-      }
+      },
 
+      /**
+       * The payload of the mqtt.message is an `Uint8Array`. If the payload is an String use `String` otherwise use
+       * `Custom` as `payloadType` and provide a custom `payloadParseFunction`. If the subscription is generic use
+       * `Unknown` and the payload will not be parsed.
+       */
+      payloadType: {
+        type: String,
+        value: "String",
+        observer: "_payloadTypeChanged"
+      },
+
+      /**
+       * The function that is used to parse the message payload
+       * @type Function
+       */
+      payloadParseFunction: {
+        type: Function,
+        value: String.fromCharCode,
+      },
+
+      /**
+       * A private function to signal the subscription that it is subscribed
+       * @private
+       */
+      _handelSubscriptionSubscribedFunc: {
+        type: Function,
+        readOnly: true,
+        value: function(){
+          return this._handelSubscriptionSubscribed.bind(this);
+        }
+      },
+
+      /**
+       * A private function to handel a message
+       * @private
+       */
+      _handelMessageFunc: {
+        type: Function,
+        readOnly: true,
+        value: function(){
+          return this._handelMessage.bind(this);
+        }
+      }
     },
 
     behaviors: [MqttElements.MqttSubscriptionRegestrationBehaviour],
 
-    ready: function() {
-//      console.log('ready');
+    /**
+     * A change listener for `numberOfMessages` to validate the input
+     * @param numberOfMessages
+     * @param old
+     * @private
+     */
+    _numberOfMessagesChanged: function(numberOfMessages, old){
+      if (numberOfMessages <= 0){
+        console.error("numberOfMessages must be higher than 0, setting back to 1");
+        this.numberOfMessages = 1;
+      }
     },
 
-    detached: function() {
-      console.log('detached', this.topic);
+    /**
+     * A private function to set the right `payloadParseFunction` after the `payloadType` changed
+     * @param payloadType
+     * @param old
+     * @private
+     */
+    _payloadTypeChanged: function(payloadType, old){
+      switch (payloadType){
+        case "Custom":
+            // don't do anything user has to supply a payloadParseFunction
+              break;
+        case "Unknown": this.payloadParseFunction = function(){};
+              break;
+        case "String": this.payloadParseFunction = String.fromCharCode;
+              break;
+        default: this.payloadParseFunction = String.fromCharCode;
+
+      }
     },
 
-    _handelSubscriptionSubscribed: function() {
+    /**
+     * Will be called from the `mqtt-connection` via this._handelSubscriptionSubscribedFunc with the correct this bound
+     * and fires a the `mqtt-subscription-unsubscribed` event
+     * @private
+     */
+    _handelSubscriptionSubscribed: function () {
       this.fire("mqtt-subscription-subscribed", {topic: this.topic, qos: this.qos});
       this._setSubscribed(true);
-    }
+    },
 
+    /**
+     * Will be called from the `mqtt-connection` when the subscription is not subscribed any more for e.g. if the
+     * connection is disconnected of the subscription is removed intentionally
+     * @private
+     */
+    _handelSubscriptionUnsubscribed: function () {
+      this.fire("mqtt-subscription-unsubscribed", {topic: this.topic, qos: this.qos});
+      this._setSubscribed(false);
+    },
 
+    /**
+     * A little helper function to parse the `Uint8Array` of the message.payload
+     *
+     * @param message
+     * @returns {*|{type, value}|string}
+     * @private
+     */
+    _parseMessage: function(message){
+      return this.payloadParseFunction.apply(null, message.message.payload);
+    },
+
+    /**
+     * Stores the message within `this.lastMessage` and `this.messages`
+     * @param message the mqtt message
+     * @private
+     */
+    _storeMessage: function (message) {
+      message.parsedPayload = this._parseMessage(message);
+
+      this._setLastMessage(message);
+
+      if(this.messages.length >= this.numberOfMessages) {
+        this.shift("messages");
+      }
+      this.push("messages", message);
+    },
+
+    /**
+     * Will be called from the `mqtt-connection` via this._handelMessageFunc with the correct this bound
+     * @param message the mqtt message
+     * @param cb a function to signal mqtt.js that the message was handled
+     * @private
+     */
+    _handelMessage: function (message, cb) {
+      this._storeMessage(message);
+      if(cb) {
+        cb();
+      }
+    },
   });
 </script>

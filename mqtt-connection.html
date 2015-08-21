@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="mqttjs.html">
+<link rel="import" href="mqemitter.html">
 
 
 <!--
@@ -184,55 +185,78 @@ element. And manually connect if `auto` is set to `false` with `connect`
         value: function () {
           return [];
         }
-      }
+      },
+
+      /**
+       * A reference to the MQEmitter that is used to route messages between the `mqtt-connection` element and the
+       * `mqtt-subscription` elements
+       *
+       * @attribute mqEmitter
+       * @type MQEmitter
+       * @default `new MQEmitter`
+       */
+      mqEmitter: {
+        type: Object,
+        notify: true,
+        readOnly: true,
+        value: function () {
+          return new MQEmitter();
+        },
+      },
     },
 
-//    listeners:
-//    mqtt-subscription-attached
+    observers: [],
 
     listeners: {
-      'mqtt-subscription-register': '_elementRegistered',
-      'mqtt-subscription-unregister': '_elementUnregistered',
+      'mqtt-subscription-register': '_subscriptionElementRegistered',
+      'mqtt-subscription-unregister': '_subscriptionElementUnregistered',
+      'mqtt-publish-register': '_publishElementRegistered',
+      'mqtt-publish-unregister': '_publishElementUnregistered',
     },
 
-    _elementRegistered: function(event){
-//      console.log("_elementRegistered", arguments);
+    _setParentConnectionOnElement: function(element){
+      element._parentConnection = this;
+    },
+
+    _subscriptionElementRegistered: function (event) {
+      var sub = event.target;
       // adding the element to the subscriptions
-      this.push("subscriptions", event.target);
+      this.push("subscriptions", sub);
       // setting this connection as the parrent on the connection
-      event.target._parentConnection = this;
+      this._setParentConnectionOnElement(sub);
 
-      this._createSubscription(event.target);
+//      this._createSubscription(sub);
     },
 
-    _elementUnregistered: function(event){
-//      console.log("_elementUnregistered", arguments);
-      var target = event.detail.target;
-      if (target) {
-        if (target.topic){
+    _subscriptionElementUnregistered: function (event) {
+      var sub = event.detail.target;
+      if(sub) {
+        if(sub.topic) {
           this.client.unsubscribe(target.topic);
+          this._removeSubFromEmmitter(sub);
         }
         var index = this.subscriptions.indexOf(target);
-        if (index > -1) {
+        if(index > -1) {
           this.splice("subscriptions", index, 1);
         }
       }
     },
 
-    ready: function () {
+    _publishElementRegistered: function(event){
+      this._setParentConnectionOnElement(event.target);
+    },
+
+    _removeSubFromEmmitter: function (sub) {
+      this.mqEmitter.removeListener(sub.topic, sub._handelMessageFunc);
     },
 
     attached: function () {
-
-      this._loadMqttSubscriptions();
-
       if(this.auto) {
-        this.connectClient();
+        this.connect();
       }
     },
 
-    connectClient: function () {
-//      console.log("connectClient");
+    _createClient: function () {
       if(mqtt) {
         this.options.clientId = this._generateClientId();
         this.client = mqtt.connect(this.url, this.options);
@@ -255,7 +279,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       }
     },
 
-    _getConnectionStatusofConnection: function(client){
+    _getConnectionStatusofConnection: function (client) {
       return client ? client.connected : false
     },
 
@@ -269,7 +293,6 @@ element. And manually connect if `auto` is set to `false` with `connect`
     },
 
     _handelConnected: function () {
-      console.log("_handelConnected");
       this._setMqttConnected(this._getConnectionStatusofConnection(this.client));
       this.fire("mqtt-connection-connected", {value: this.connected});
     },
@@ -278,6 +301,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
     },
 
     _handelClose: function () {
+      this._setMqttConnected(this._getConnectionStatusofConnection(this.client));
       this.fire("mqtt-connection-close");
     },
 
@@ -292,6 +316,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
     _handelMessage: function (topic, message, packet) {
       this.fire("mqtt-message", {'topic': topic, 'message': message, 'packet': packet});
+      this.mqEmitter.emit({topic: topic, message: packet})
     },
 
     _setMqttConnected: function (state) {
@@ -302,40 +327,61 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
     _connectedChanged: function (connected, old) {
       if(connected) {
-//        this._createSubscriptions();
+        // after the connection is established we need to subscribe/ resubscribe
+        this._subscribeAllSubscriptions();
+      } else if(old) {
+        this._setUnsubscribedForAllSubscriptions();
       }
     },
 
-    _createSubscription: function(sub){
-      if (this.client){
-        this.client.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribed.bind(sub));
+    _setUnsubscribedForAllSubscriptions: function () {
+      for (var i = 0; i < this.subscriptions.length; i++) {
+        this._setUnsubscribedToSubscription(this.subscriptions[i]);
       }
     },
 
-//    _createSubscriptions: function () {
-//      var items = Polymer.dom(this.$.mqttSubscriptions).getDistributedNodes();
-//      console.log("_loadMqttSubscriptions", this.id ,items);
-//
-//      if(this.subscriptions.length > 0) {
-//        for (var i = 0; i < this.subscriptions.length; i++) {
-//          var sub = this.subscriptions[i];
-//          if(sub && sub.topic) {
-////            console.log("_createSubscriptions", this.options.clientId, this.id);
-//            this.client.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribed.bind(sub));
-//          }
-//        }
-//      }
-//    },
+    _setUnsubscribedToSubscription: function (sub) {
+      this._removeSubFromEmmitter(sub);
+      sub._handelSubscriptionUnsubscribed();
+    },
 
-    _loadMqttSubscriptions: function () {
-//      // TODO sandro-k validate query and refactor to forEach
-//      var items = Polymer.dom(this.$.mqttSubscriptions).getDistributedNodes();
-//      console.log("_loadMqttSubscriptions", this.id ,items);
-//
-//      for (var i = 0; i < items.length; i++) {
-//        this.push("subscriptions", items[i]);
-//      }
+    _subscribeAllSubscriptions: function () {
+      var sub;
+      for (var i = 0; i < this.subscriptions.length; i++) {
+        sub = this.subscriptions[i];
+        // subscribe if the subscription is not subscribed
+        if(!sub.subscribed) {
+          this._createSubscription(sub);
+        }
+      }
+    },
 
-    }
+    _createSubscription: function (sub) {
+      if(this.client) {
+        this.client.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribedFunc);
+
+        this.mqEmitter.on(sub.topic, sub._handelMessageFunc);
+      }
+    },
+
+    connect: function () {
+      this._createClient();
+    },
+
+    disconnect: function () {
+      if(this.client) {
+        this.client.end(true);
+      }
+    },
+
+    publish: function (topic, message, opt_qos, opt_retained, opt_callback) {
+      opt_qos = opt_qos || 0;
+      opt_retained = opt_retained || false;
+
+      if(this.client) {
+        this.client.publish(topic, message, opt_qos, opt_retained, opt_callback);
+      }
+    },
+
   });
 </script>
