@@ -11,3 +11,12 @@ npm install
 bower install
 grunt serve
 ```
+
+
+### Bundel MQTT.js
+
+#### Bundel mqemitter
+```
+ browserify node_modules/mqemitter/mqemitter.js --standalone MQEmitter -o dist/mqemitter.js 
+ 
+```
