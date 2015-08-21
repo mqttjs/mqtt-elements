@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="mqtt-publish-regestration-behaviour.html">
 
 <!--
 The `mqtt-subscription` element
@@ -31,6 +32,11 @@ The `mqtt-subscription` element
 
     properties: {
 
+      auto: {
+        type: Boolean,
+        value: false
+      },
+
       qos: {
         type: Number,
         value: 0
@@ -38,10 +44,9 @@ The `mqtt-subscription` element
 
       topic: {
         type: String,
-        value: ""
       },
 
-      messages: {
+      payload: {
         type: Object,
         value: {}
       },
@@ -49,15 +54,36 @@ The `mqtt-subscription` element
       published: {
         type: Boolean,
         value: false
-      }
+      },
+
+      retained: {
+        type: Boolean,
+        value: false
+      },
 
     },
+
+    behaviors: [MqttElements.MqttPublishRegestrationBehaviour],
+
+    observers: [
+        '_propertiesChanged(topic, payload, qos, retained)'
+    ],
+
+    _propertiesChanged: function(topic, payload, qos, retained){
+      if (this.auto && topic && payload && this._parentConnection){
+        this._parentConnection.publish(topic, payload, qos, retained);
+      }
+    },
+
+    publish: function(){
+      if (topic && payload && this._parentConnection){
+        this._parentConnection.publish(this.topic, this.payload, this.qos, this.retained);
+      }
+    },
+
     _handelPublicationPublished: function() {
       this.fire("mqtt-publication-published");
     },
 
-    attached: function(){
-      console.log("attached");
-    }
   });
 </script>
