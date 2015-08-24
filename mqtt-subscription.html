@@ -33,6 +33,7 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
 
   'use strict';
 
+  //noinspection JSValidateTypes
   Polymer({
     is: 'mqtt-subscription',
 
@@ -218,8 +219,7 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
      * @private
      */
     _handelSubscriptionSubscribed: function () {
-      this.fire("mqtt-subscription-subscribed", {topic: this.topic, qos: this.qos});
-      this._setSubscribed(true);
+      this._setSubscribedAndFire(true, "mqtt-subscription-subscribed");
     },
 
     /**
@@ -228,8 +228,12 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
      * @private
      */
     _handelSubscriptionUnsubscribed: function () {
-      this.fire("mqtt-subscription-unsubscribed", {topic: this.topic, qos: this.qos});
-      this._setSubscribed(false);
+      this._setSubscribedAndFire(false, "mqtt-subscription-unsubscribed");
+    },
+
+    _setSubscribedAndFire: function(state, message){
+      this._setSubscribed(state);
+      this.fire(message, {topic: this.topic, qos: this.qos});
     },
 
     /**
