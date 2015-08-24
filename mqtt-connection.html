@@ -214,7 +214,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       'mqtt-publish-unregister': '_publishElementUnregistered',
     },
 
-    _setParentConnectionOnElement: function(element){
+    _setParentConnectionOnElement: function (element) {
       element._parentConnection = this;
     },
 
@@ -242,7 +242,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       }
     },
 
-    _publishElementRegistered: function(event){
+    _publishElementRegistered: function (event) {
       this._setParentConnectionOnElement(event.target);
     },
 
@@ -296,6 +296,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       this._setMqttConnected(this._getConnectionStatusofConnection(this.client));
       this.fire("mqtt-connection-connected", {value: this.connected});
     },
+
     _handelReconnect: function () {
       this.fire("mqtt-connection-reconnect");
     },
@@ -358,28 +359,67 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
     _createSubscription: function (sub) {
       if(this.client) {
-        this.client.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribedFunc);
+        console.log("_createSubscription", sub);
+        // subscribe the element at the mqtt-broker
+        this.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribedFunc);
 
+        // add the element to the mqEmitter to receive messages on the topic
         this.mqEmitter.on(sub.topic, sub._handelMessageFunc);
       }
     },
 
+    /**
+     * connect - connect to an MQTT broker.
+     */
     connect: function () {
+      // creates the client and automatically connects
       this._createClient();
     },
 
+    /**
+     * diconnect - disconnect for the MQTT broker
+     */
     disconnect: function () {
+      // check if we already have a client before calling end/ disconnect
       if(this.client) {
         this.client.end(true);
       }
     },
 
+    /**
+     * Subscribe to an MQTT topic
+     * @param topic that the subscription is made to
+     * @param opt_qos [0,1,2] with the subscription is made with
+     * @param opt_callback an callback that will be executed when the `suback` message is received
+     */
+    subscribe: function (topic, opt_qos, opt_callback) {
+      var opts = { qos: opt_qos || 0};
+      if (this.client){
+        this.client.subscribe(topic, opts, opt_callback);
+      }
+    },
+
+    /**
+     * Publish to an MQTT topic
+     * @param topic
+     * @param message
+     * @param opt_qos
+     * @param opt_retained
+     * @param opt_callback
+     */
     publish: function (topic, message, opt_qos, opt_retained, opt_callback) {
-      opt_qos = opt_qos || 0;
-      opt_retained = opt_retained || false;
+
+      // the optional parameters to the publish
+      var opts = {
+        // default qos is `0`
+        qos: opt_qos || 0,
+        // default for retained is `false`
+        retain: opt_retained || false
+      };
 
       if(this.client) {
-        this.client.publish(topic, message, opt_qos, opt_retained, opt_callback);
+        // actually send the `publish` message to the MQTT broker
+        this.client.publish(topic, message, opts, opt_callback);
       }
     },
 
