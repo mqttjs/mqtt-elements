@@ -163,7 +163,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
             //MQIsdp
             protocolId: "MQTT",
             protocolVersion: 4,
-            keepalive: 10,
+            keepalive: 120,
             reconnectPeriod: 1000,
             clientId: "",
             encoding: "string",
@@ -182,10 +182,14 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
       subscriptions: {
         type: Array,
+        notify: true,
+        readOnly: true,
         value: function () {
           return [];
-        }
+        },
+        observer: "_subscriptionsChanged"
       },
+
 
       /**
        * A reference to the MQEmitter that is used to route messages between the `mqtt-connection` element and the
@@ -222,10 +226,12 @@ element. And manually connect if `auto` is set to `false` with `connect`
       var sub = event.target;
       // adding the element to the subscriptions
       this.push("subscriptions", sub);
-      // setting this connection as the parrent on the connection
+      // setting this connection as the parent on the connection
       this._setParentConnectionOnElement(sub);
 
-//      this._createSubscription(sub);
+      if(this.client && this.client.connected) {
+        this._createSubscription(sub);
+      }
     },
 
     _subscriptionElementUnregistered: function (event) {
@@ -239,6 +245,16 @@ element. And manually connect if `auto` is set to `false` with `connect`
         if(index > -1) {
           this.splice("subscriptions", index, 1);
         }
+      }
+    },
+
+    _notifySubscriptionChanged: function () {
+      if(this.subscriptions.length > 0) {
+        var itemsTmp = this.subscriptions;
+        this._setSubscriptions([]);
+        this.async(function () {
+          this.self._setSubscriptions(this.items);
+        }.bind({items: itemsTmp, self: this}));
       }
     },
 
@@ -279,7 +295,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       }
     },
 
-    _getConnectionStatusofConnection: function (client) {
+    _getConnectionStatusOfConnection: function (client) {
       return client ? client.connected : false
     },
 
@@ -293,7 +309,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
     },
 
     _handelConnected: function () {
-      this._setMqttConnected(this._getConnectionStatusofConnection(this.client));
+      this._setMqttConnected(this._getConnectionStatusOfConnection(this.client));
       this.fire("mqtt-connection-connected", {value: this.connected});
     },
 
@@ -302,12 +318,12 @@ element. And manually connect if `auto` is set to `false` with `connect`
     },
 
     _handelClose: function () {
-      this._setMqttConnected(this._getConnectionStatusofConnection(this.client));
+      this._setMqttConnected(this._getConnectionStatusOfConnection(this.client));
       this.fire("mqtt-connection-close");
     },
 
     _handelOffline: function () {
-      this._setMqttConnected(this._getConnectionStatusofConnection(this.client));
+      this._setMqttConnected(this._getConnectionStatusOfConnection(this.client));
       this.fire("mqtt-connection-offline", {value: this.connected});
     },
 
@@ -359,7 +375,6 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
     _createSubscription: function (sub) {
       if(this.client) {
-        console.log("_createSubscription", sub);
         // subscribe the element at the mqtt-broker
         this.subscribe(sub.topic, sub.qos, sub._handelSubscriptionSubscribedFunc);
 
@@ -393,8 +408,8 @@ element. And manually connect if `auto` is set to `false` with `connect`
      * @param opt_callback an callback that will be executed when the `suback` message is received
      */
     subscribe: function (topic, opt_qos, opt_callback) {
-      var opts = { qos: opt_qos || 0};
-      if (this.client){
+      var opts = {qos: opt_qos || 0};
+      if(this.client) {
         this.client.subscribe(topic, opts, opt_callback);
       }
     },

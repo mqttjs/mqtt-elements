@@ -110,7 +110,7 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
         notify: true,
         value: function(){
           return [];
-        },
+        }
       },
 
       /**
@@ -175,10 +175,11 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
         value: function(){
           return this._handelMessage.bind(this);
         }
-      }
+      },
     },
 
     behaviors: [MqttElements.MqttSubscriptionRegestrationBehaviour],
+
 
     /**
      * A change listener for `numberOfMessages` to validate the input
@@ -271,6 +272,7 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
      */
     _handelMessage: function (message, cb) {
       this._storeMessage(message);
+      this._parentConnection._notifySubscriptionChanged(this);
       if(cb) {
         cb();
       }
