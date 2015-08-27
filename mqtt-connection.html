@@ -167,8 +167,8 @@ element. And manually connect if `auto` is set to `false` with `connect`
             reconnectPeriod: 1000,
             clientId: "",
             encoding: "string",
-          }
-        }
+          };
+        },
       },
 
       /**
@@ -186,7 +186,16 @@ element. And manually connect if `auto` is set to `false` with `connect`
         readOnly: true,
         value: function () {
           return [];
-        }
+        },
+      },
+
+      publishers: {
+        type: Array,
+        notify: true,
+        readOnly: true,
+        value: function () {
+          return [];
+        },
       },
 
 
@@ -223,31 +232,47 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
     _subscriptionElementRegistered: function (event) {
       var sub = event.target;
-      // adding the element to the subscriptions
-      this.push("subscriptions", sub);
-      // setting this connection as the parent on the connection
-      this._setParentConnectionOnElement(sub);
+      this._addElementAndRegister("subscriptions", sub);
 
       if(this.client && this.client.connected) {
         this._createSubscription(sub);
       }
     },
 
+    _publishElementRegistered: function (event) {
+      this._addElementAndRegister("publishers", event.target);
+    },
+
+    _addElementAndRegister: function (path, element) {
+      // adding the element to the array
+      this.push(path, element);
+      // setting this connection as the parent on the connection
+      this._setParentConnectionOnElement(element);
+    },
+
     _subscriptionElementUnregistered: function (event) {
       var sub = event.detail.target;
       if(sub) {
-        if(sub.topic) {
-          this.client.unsubscribe(target.topic);
+        if(sub.topic && this.client) {
+          this.client.unsubscribe(sub.topic);
           this._removeSubFromEmmitter(sub);
         }
-        var index = this.subscriptions.indexOf(target);
-        if(index > -1) {
-          this.splice("subscriptions", index, 1);
-        }
+        this._unregisterElement("subscriptions", sub);
       }
     },
 
-    _notifySubscriptionChanged: function () {
+    _publishElementUnregistered: function (event) {
+      this._unregisterElement("publishers", event.detail.target);
+    },
+
+    _unregisterElement: function (path, element) {
+      this.arrayDelete(path, element);
+    },
+
+    _notifySubscriptionChanged: function (event) {
+//      console.log("_notifySubscriptionChanged", event);
+//      this.notifyPath("subscriptions.splice", event);
+
       if(this.subscriptions.length > 0) {
         var itemsTmp = this.subscriptions;
         this._setSubscriptions([]);
@@ -255,10 +280,6 @@ element. And manually connect if `auto` is set to `false` with `connect`
           this.self._setSubscriptions(this.items);
         }.bind({items: itemsTmp, self: this}));
       }
-    },
-
-    _publishElementRegistered: function (event) {
-      this._setParentConnectionOnElement(event.target);
     },
 
     _removeSubFromEmmitter: function (sub) {
