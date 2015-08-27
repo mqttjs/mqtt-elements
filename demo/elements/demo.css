@@ -5,6 +5,10 @@
      border-radius: 50%;
      overflow: hidden;
  };
+
+--paper-icon-button: {
+    margin-right: -8px;
+ };
 }
 
 body {
@@ -107,3 +111,4 @@ tbody tr:nth-child(odd) {
 .layout.wrap.center-center {
     max-width: 800px;
 }
+

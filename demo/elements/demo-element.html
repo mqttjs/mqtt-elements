@@ -4,6 +4,9 @@
 <link rel="import" href="../../../paper-styles/typography.html">
 <link rel="import" href="../../../paper-styles/demo-pages.html">
 <link rel="import" href="../../../paper-slider/paper-slider.html">
+<link rel="import" href="../../../iron-icons/iron-icons.html">
+<link rel="import" href="../../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../mqtt-elements.html">
 
 <dom-module id="demo-element">
@@ -23,20 +26,19 @@
 
       <!--create a mqtt subscription for every item in topics-->
       <template is="dom-repeat" items="{{topics}}" as="t">
-        <mqtt-subscription topic="[[t]]"
+        <mqtt-subscription topic="[[t.topic]]"
                            number-of-messages="10"
-                           qos="1"></mqtt-subscription>
+                           qos="[[t.qos]]"></mqtt-subscription>
       </template>
 
-      <!--create one mqtt-publish element to publish mqtt messages to the broker -->
-      <mqtt-publish id="pub" topic="[[topic]]"
+      <!--create mqtt-publish element to publish mqtt messages to the broker -->
+      <mqtt-publish id="pub"
+                    topic="[[topic]]"
                     payload="[[value]]"
                     auto$="[[pubAuto]]"
                     qos="[[pubQos]]"
                     retained="[[pubRetained]]"></mqtt-publish>
-
     </mqtt-connection>
-
 
     <div class="layout wrap center-center">
 
@@ -46,7 +48,8 @@
           <h1 class="title">&lt;mqtt-connection&gt;</h1>
           <div class="status">
             <h3>Status:</h3>
-            <span class$="[[_connectionStatusToString(connected)]]"></span>
+            <span id="status" class$="[[_connectionStatusToString(connected)]]"></span>
+            <paper-tooltip for="status">[[_connectionStatusToString(connected)]]</paper-tooltip>
           </div>
         </div>
         <!--bind url and port for the mqtt-broker url-->
@@ -62,7 +65,11 @@
       <div class="vertical-section">
         <h3>Add Aubscription</h3>
         <paper-input label="topic" value="{{newSubTopic}}"></paper-input>
-        <paper-button raised on-tap="_addSub">Add Subscription</paper-button>
+        <div class="horizontal-section-container-end">
+          <div>QoS</div>
+          <paper-slider pin snaps value="{{subQos}}" step="1" min="0" max="2"></paper-slider>
+          <paper-button raised on-tap="_addSub">Add Subscription</paper-button>
+        </div>
       </div>
 
       <!-- section to publish messages-->
@@ -82,6 +89,7 @@
           <div class="line">
             <paper-toggle-button checked="{{pubAuto}}"></paper-toggle-button>
             <span>Auto publish?</span>
+            <paper-tooltip>Every time the input is changed a mqtt-message is send.</paper-tooltip>
           </div>
           <!--publish retain-->
           <div class="line">
@@ -99,6 +107,10 @@
             <div class="sub-header">
               <h2 class="title">Subscribed to - <span>[[sub.topic]]</span></h2>
               <h3 class="qos">QoS: <span>[[sub.qos]]</span></h3>
+              <paper-icon-button on-tap="_removeSubscription"
+                                 icon="icons:cancel"
+                                 alt="remove"
+                                 title="remove subscription"></paper-icon-button>
             </div>
             <table>
               <thead>
@@ -159,7 +171,14 @@
         topics: {
           type: Array,
           value: function () {
-            return ["foo/bar", "mqttjs/elements"];
+            return [{topic: "foo/bar", qos:0}, {topic: "mqttjs/elements", qos:1}];
+          },
+        },
+
+        publishTopics: {
+          type: Array,
+          value: function () {
+            return ["foo/bar"];
           },
         },
       },
@@ -168,8 +187,8 @@
         this.$.pub.publish();
       },
 
-      _addSub: function (){
-        this.push("topics", this.newSubTopic);
+      _addSub: function () {
+        this.push("topics", {topic: this.newSubTopic, qos: this.subQos});
       },
 
       _handelMqttMessage: function (event, message) {
@@ -179,7 +198,6 @@
             topic: message.topic,
             message: String.fromCharCode.apply(null, message.message)
           });
-
         }
       },
 
@@ -205,7 +223,11 @@
         } else {
           return "disconnected";
         }
-      }
+      },
+
+      _removeSubscription: function (event) {
+        this.arrayDelete("topics", {topic: event.model.sub.topic, qos: event.model.sub.qos});
+      },
 
     });
 
