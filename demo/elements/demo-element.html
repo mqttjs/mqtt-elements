@@ -108,7 +108,7 @@
               <h2 class="title">Subscribed to - <span>[[sub.topic]]</span></h2>
               <h3 class="qos">QoS: <span>[[sub.qos]]</span></h3>
               <paper-icon-button on-tap="_removeSubscription"
-                                 icon="icons:cancel"
+                                 icon="icons:delete"
                                  alt="remove"
                                  title="remove subscription"></paper-icon-button>
             </div>
@@ -188,7 +188,9 @@
       },
 
       _addSub: function () {
-        this.push("topics", {topic: this.newSubTopic, qos: this.subQos});
+        if (this.newSubTopic.length > 0){
+          this.push("topics", {topic: this.newSubTopic, qos: this.subQos});
+        }
       },
 
       _handelMqttMessage: function (event, message) {
@@ -226,7 +228,11 @@
       },
 
       _removeSubscription: function (event) {
-        this.arrayDelete("topics", {topic: event.model.sub.topic, qos: event.model.sub.qos});
+        // using the index of the subscriptions array only works because we have not changed the order of the
+        // subscriptions. Otherwise it would be nessesary to have some sort of ID for each subscription to easily map
+        // the subscription to the model.
+        var index = this.subscriptions.indexOf(event.model.sub)
+        this.splice("topics", index, 1);
       },
 
     });
