@@ -269,16 +269,60 @@ element. And manually connect if `auto` is set to `false` with `connect`
       this.arrayDelete(path, element);
     },
 
-    _notifySubscriptionChanged: function (event) {
+    _notifySubscriptionChanged: function (element) {
+      this._propagateElementChanged(element, "subscriptions");
 //      console.log("_notifySubscriptionChanged", event);
 //      this.notifyPath("subscriptions.splice", event);
+//
+//      if(this.subscriptions.length > 0) {
+//        var itemsTmp = this.subscriptions;
+//        this._setSubscriptions([]);
+//        this.async(function () {
+//          this.self._setSubscriptions(this.items);
+//        }.bind({items: itemsTmp, self: this}));
+//      }
+    },
 
-      if(this.subscriptions.length > 0) {
-        var itemsTmp = this.subscriptions;
-        this._setSubscriptions([]);
-        this.async(function () {
-          this.self._setSubscriptions(this.items);
-        }.bind({items: itemsTmp, self: this}));
+    _propagateElementChanged: function(element, arrElementPath){
+      // the array property that hold the element that changed
+      var arrName = arrElementPath;
+      // get the index of the element
+      var index = this[arrName].indexOf(element);
+      // if the element exists within the array
+      if(index >= 0) {
+        // get the polymer collection key see:
+        // https://github.com/Polymer/polymer/issues/2068
+        var polymerPathId = Polymer.Collection.get(this.get(arrName)).getKey(this[arrName][index]);
+
+        // check if the id is valid
+        if(polymerPathId >= 0) {
+
+          // get all defined properties of the custom element
+          var propertyNames = Object.getOwnPropertyNames(this[arrName][index].properties);
+
+          // iterate over all properties
+          for (var i = 0; i < propertyNames.length; i++) {
+            // build the path
+            var path = [arrName, polymerPathId, propertyNames[i]].join(".");
+
+            // check if the element is an array, then slice needs to get called to actually result in
+            // Polymer_propertySetter
+            // old !== value => true
+            if(Array.isArray(this[arrName][index][propertyNames[i]])) {
+              this.notifyPath(path, this[arrName][index][propertyNames[i]].slice());
+            }
+            // TOOD
+            // if the prop is an object each property has to be checked recursively
+            // for now use
+            // this.set($path, {$prop1: $prop1Old, $prop2: prop2Changed};
+            // else if(typeof this[arrName][index][propertyNames[i]] === "object") {
+            //
+            // }
+            else {
+              this.notifyPath(path, this[arrName][index][propertyNames[i]]);
+            }
+          }
+        }
       }
     },
 
