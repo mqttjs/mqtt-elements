@@ -76,7 +76,7 @@ The `mqtt-subscription` element
     },
 
     publish: function(){
-      if (this.topic && this.payload && this._parentConnection){
+      if (this.topic && this.topic.length > 0 && this.payload && this.payload.length > 0 && this._parentConnection){
         this._parentConnection.publish(this.topic, this.payload, this.qos, this.retained);
       }
     },
