@@ -4,7 +4,7 @@
 
 
 <!--
-The `mqtt-connection` element exposes mqtt connection functionality to the web.
+The `<mqtt-connection>` element exposes MQTT connection functionality to the web.
 Use one `<mqtt-connection>` element per connection to a mqtt broker.
 Currently the element supports `ws` connections.
 
@@ -14,8 +14,10 @@ Currently the element supports `ws` connections.
     </mqtt-connection>
 
 
-With `auto` set to `true`, the element performs a mqtt#Connect whenever
+With `auto` set to `true`, the element performs a MQTT.Connect whenever
 the element is ready or the connection gets disconnected.
+
+    <mqtt-connection auto></mqtt-connection>
 
 Note: The `options` attribute must be double quoted JSON.
 
