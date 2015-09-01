@@ -1,22 +1,22 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="mqtt-subscription-regestration-behaviour.html">
 
-<!--
-The `mqtt-subscription` element
 
-creates a mqtt subscription to a mqtt topic. Place the element within a `mqtt-connection` to create the binding between
+<!--
+The mqtt-subscription element
+
+creates a MQTT subscription to a MQTT topic. Place the element within a mqtt-connection to create the binding between
 the connection and the subscription. The flowing example
 
-```
-<mqtt-connection >
-    <mqtt-subscription
-        topic="foo/bar"
-        number-of-messages="Infinity"
-        last-message="{{lastMessage}}"
-        messages="{{messages}}"
-        subscribed="{{subscribed}}"></mqtt-subscription>
-  </mqtt-connection>
-```
+    <mqtt-connection >
+        <mqtt-subscription
+            topic="foo/bar"
+            number-of-messages="Infinity"
+            last-message="{{lastMessage}}"
+            messages="{{messages}}"
+            subscribed="{{subscribed}}"></mqtt-subscription>
+    </mqtt-connection>
+
 
 creates a subscription to the topic "foo/bar" and stores all received messages within `messages`. The last messages will
 be bound to `lastMessage`. `subscribed` indicates whether the subscription is subscribed or not.
@@ -33,7 +33,6 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
 
   'use strict';
 
-  //noinspection JSValidateTypes
   Polymer({
     is: 'mqtt-subscription',
 
@@ -72,36 +71,19 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
 
     properties: {
 
+
       /**
-       * The qos the subscription is made to
-       * @type Number
+       * Will be set to the last message received.
+       * @type Object
        */
-      qos: {
-        type: Number,
-        value: 0,
+      lastMessage: {
+        type: Object,
+        readOnly: true,
+        notify: true,
       },
 
       /**
-       * The
-       * @type String
-       */
-      topic: {
-        type: String,
-      },
-
-      /**
-       * The number of messages that are sored in `messages` use `<mqtt-subscription number-of-messages="Infinity">` to
-       * store every message
-       * @type Number [1..Infinity]
-       */
-      numberOfMessages: {
-        type: Number,
-        value: 1,
-        observer: '_numberOfMessagesChanged'
-      },
-
-      /**
-       * An array of messages of the `numberOfMessages` number of messages recieved
+       * An array of messages of the `numberOfMessages` number of messages received
        * @type Array
        */
       messages: {
@@ -114,13 +96,34 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
       },
 
       /**
-       * The last message received
-       * @type Object
+       * The number of messages that are sored in `messages` use `<mqtt-subscription number-of-messages="Infinity">` to
+       * store every message.
+       * @type Number [1..Infinity]
        */
-      lastMessage: {
-        type: Object,
-        readOnly: true,
-        notify: true,
+      numberOfMessages: {
+        type: Number,
+        value: 1,
+        observer: '_numberOfMessagesChanged'
+      },
+
+      /**
+       * The payload of the mqtt.message is an `Uint8Array`. If the payload is an String use `String` otherwise use
+       * `Custom` as `payloadType` and provide a custom `payloadParseFunction`. If the subscription is generic use
+       * `Unknown` and the payload will not be parsed.
+       */
+      payloadType: {
+        type: String,
+        value: "String",
+        observer: "_payloadTypeChanged"
+      },
+
+      /**
+       * The qos the subscription is made to
+       * @type Number
+       */
+      qos: {
+        type: Number,
+        value: 0,
       },
 
       /**
@@ -134,14 +137,11 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
       },
 
       /**
-       * The payload of the mqtt.message is an `Uint8Array`. If the payload is an String use `String` otherwise use
-       * `Custom` as `payloadType` and provide a custom `payloadParseFunction`. If the subscription is generic use
-       * `Unknown` and the payload will not be parsed.
+       * The
+       * @type String
        */
-      payloadType: {
+      topic: {
         type: String,
-        value: "String",
-        observer: "_payloadTypeChanged"
       },
 
       /**
@@ -216,7 +216,7 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
 
     /**
      * Will be called from the `mqtt-connection` via this._handelSubscriptionSubscribedFunc with the correct this bound
-     * and fires a the `mqtt-subscription-unsubscribed` event
+     * and fires a the `mqtt-subscription-subscribed` event
      * @private
      */
     _handelSubscriptionSubscribed: function () {
@@ -225,7 +225,8 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
 
     /**
      * Will be called from the `mqtt-connection` when the subscription is not subscribed any more for e.g. if the
-     * connection is disconnected of the subscription is removed intentionally
+     * connection is disconnected of the subscription is removed intentionally abd fires the
+     * `mqtt-subscription-unsubscribed` event
      * @private
      */
     _handelSubscriptionUnsubscribed: function () {
