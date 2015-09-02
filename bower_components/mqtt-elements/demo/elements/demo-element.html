@@ -1,0 +1,246 @@
+<link rel="import" href="../../../polymer/polymer.html">
+<link rel="import" href="../../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../paper-styles/shadow.html">
+<link rel="import" href="../../../paper-styles/typography.html">
+<link rel="import" href="../../../paper-styles/demo-pages.html">
+<link rel="import" href="../../../paper-slider/paper-slider.html">
+<link rel="import" href="../../../iron-icons/iron-icons.html">
+<link rel="import" href="../../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../mqtt-elements.html">
+
+<dom-module id="demo-element">
+
+  <link rel="import" type="css" href="demo.css">
+
+  <template>
+
+    <!--create mqtt-connection element-->
+    <mqtt-connection
+        id="connection"
+        url="[[toWsUrl(url, port)]]"
+        connected="{{connected}}"
+        client="{{client}}"
+        subscriptions="{{subscriptions}}"
+        on-mqtt-message="_handelMqttMessage">
+
+      <!--create a mqtt subscription for every item in topics-->
+      <template is="dom-repeat" items="{{topics}}" as="t">
+        <mqtt-subscription topic="[[t.topic]]"
+                           number-of-messages="10"
+                           qos="[[t.qos]]"></mqtt-subscription>
+      </template>
+
+      <!--create mqtt-publish element to publish mqtt messages to the broker -->
+      <mqtt-publish id="pub"
+                    topic="[[topic]]"
+                    payload="[[value]]"
+                    auto$="[[pubAuto]]"
+                    qos="[[pubQos]]"
+                    retained="[[pubRetained]]"></mqtt-publish>
+    </mqtt-connection>
+
+    <div class="layout wrap center-center">
+
+      <!--section to configure the mqtt-connection-->
+      <div class="vertical-section">
+        <div class="sub-header">
+          <h1 class="title">&lt;mqtt-connection&gt;</h1>
+          <div class="status">
+            <h3>Status:</h3>
+            <span id="status" class$="[[_connectionStatusToString(connected)]]"></span>
+            <paper-tooltip for="status">[[_connectionStatusToString(connected)]]</paper-tooltip>
+          </div>
+        </div>
+        <!--bind url and port for the mqtt-broker url-->
+        <paper-input label="MQTT-Broker URL" value="{{url}}"></paper-input>
+        <paper-input label="MQTT-Broker Port" value="{{port}}"></paper-input>
+        <div class="horizontal-section-container-end">
+          <!--buttons to connect or disconnect the connection-->
+          <paper-button raised on-tap="connect">connect</paper-button>
+          <paper-button raised on-tap="disconnect">disconnect</paper-button>
+        </div>
+      </div>
+
+      <div class="vertical-section">
+        <h3>Add Aubscription</h3>
+        <paper-input label="topic" value="{{newSubTopic}}"></paper-input>
+        <div class="horizontal-section-container-end">
+          <div>QoS</div>
+          <paper-slider pin snaps value="{{subQos}}" step="1" min="0" max="2"></paper-slider>
+          <paper-button raised on-tap="_addSub">Add Subscription</paper-button>
+        </div>
+      </div>
+
+      <!-- section to publish messages-->
+      <div class="vertical-section">
+        <h3>Publish on <span>[[topic]]</span></h3>
+        <!--publish topic and payload-->
+        <paper-input label="topic" value="{{topic}}"></paper-input>
+        <paper-input label="Payload" char-counter value="{{value}}"></paper-input>
+
+        <div class="horizontal-section-container-end">
+          <!--publish qos-->
+          <div class="center horizontal layout">
+            <div>QoS</div>
+            <paper-slider pin snaps value="{{pubQos}}" step="1" min="0" max="2"></paper-slider>
+          </div>
+          <!--publish auto-->
+          <div class="line">
+            <paper-toggle-button checked="{{pubAuto}}"></paper-toggle-button>
+            <span>Auto publish?</span>
+            <paper-tooltip>Every time the input is changed a mqtt-message is send.</paper-tooltip>
+          </div>
+          <!--publish retain-->
+          <div class="line">
+            <paper-toggle-button checked="{{pubRetained}}"></paper-toggle-button>
+            <span>Retain</span>
+          </div>
+          <paper-button raised on-tap="_sendMessage">Send Message</paper-button>
+        </div>
+      </div>
+
+      <!--output every subscription-->
+      <template id="subscriptionList" is="dom-repeat" items="[[subscriptions]]" as="sub" observe="messages.*">
+        <div class="vertical-section">
+          <div>
+            <div class="sub-header">
+              <h2 class="title">Subscribed to - <span>[[sub.topic]]</span></h2>
+              <h3 class="qos">QoS: <span>[[sub.qos]]</span></h3>
+              <paper-icon-button on-tap="_removeSubscription"
+                                 icon="icons:delete"
+                                 alt="remove"
+                                 title="remove subscription"></paper-icon-button>
+            </div>
+            <table>
+              <thead>
+              <tr>
+                <th colspan="3">Messages</th>
+              </tr>
+              <tr>
+                <th>Topic</th>
+                <th>QoS</th>
+                <th class="full">Payload</th>
+              </tr>
+              </thead>
+              <tbody>
+              <template is="dom-repeat" items="{{sub.messages}}" as="message">
+                <tr>
+                  <td>{{message.topic}}</td>
+                  <td>{{message.message.qos}}</td>
+                  <td class="full">{{message.parsedPayload}}</td>
+                </tr>
+              </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </template>
+    </div>
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'demo-element',
+
+      properties: {
+
+
+        url: {
+          type: String,
+          value: "127.0.0.1",
+        },
+
+        port: {
+          type: Number,
+          value: 3005,
+        },
+
+        topic: {
+          type: String,
+          value: "foo/bar",
+        },
+
+        messages: {
+          type: Array,
+          value: [],
+        },
+
+        topics: {
+          type: Array,
+          value: function () {
+            return [{topic: "foo/bar", qos:0}, {topic: "mqttjs/elements", qos:1}];
+          },
+        },
+
+        publishTopics: {
+          type: Array,
+          value: function () {
+            return ["foo/bar"];
+          },
+        },
+      },
+
+      _sendMessage: function (event) {
+        this.$.pub.publish();
+      },
+
+      _addSub: function () {
+        if (this.newSubTopic.length > 0){
+          this.push("topics", {topic: this.newSubTopic, qos: this.subQos});
+        }
+      },
+
+      _handelMqttMessage: function (event, message) {
+
+        if(message && message.topic) {
+          this.push('messages', {
+            topic: message.topic,
+            message: String.fromCharCode.apply(null, message.message)
+          });
+        }
+      },
+
+      parseMessage: function (message) {
+        return String.fromCharCode.apply(null, message.message.payload);
+      },
+
+      toWsUrl: function (url, port) {
+        return "ws://" + url + ":" + port;
+      },
+
+      disconnect: function () {
+        this.$.connection.disconnect();
+      },
+
+      connect: function () {
+        this.$.connection.connect();
+      },
+
+      _connectionStatusToString: function (status) {
+        if(status) {
+          return "connected";
+        } else {
+          return "disconnected";
+        }
+      },
+
+      _removeSubscription: function (event) {
+        // using the index of the subscriptions array only works because we have not changed the order of the
+        // subscriptions. Otherwise it would be nessesary to have some sort of ID for each subscription to easily map
+        // the subscription to the model.
+        var index = this.subscriptions.indexOf(event.model.sub)
+        this.splice("topics", index, 1);
+      },
+
+    });
+
+  </script>
+
+</dom-module>
+
+
+
+

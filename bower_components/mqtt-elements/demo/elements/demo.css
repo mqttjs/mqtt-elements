@@ -1,0 +1,114 @@
+:root {
+--status-icon: {
+     width: 20px;
+     height: 20px;
+     border-radius: 50%;
+     overflow: hidden;
+ };
+
+--paper-icon-button: {
+    margin-right: -8px;
+ };
+}
+
+body {
+    font-family: 'Roboto', 'Noto', sans-serif;
+    font-size: 14px;
+    margin: 0;
+    padding: 24px;
+    background-color: var(--paper-grey-50);
+}
+
+
+.horizontal-section {
+    background-color: white;
+    padding: 24px;
+    margin-right: 24px;
+    min-width: 200px;
+@apply(--shadow-elevation-2dp);
+}
+
+.vertical-section {
+    background-color: white;
+    padding: 24px;
+    margin: 0 24px 24px 24px;
+@apply(--shadow-elevation-2dp);
+}
+
+.vertical-section table {
+    width: 100%;
+}
+
+.vertical-section thead {
+    font-weight: 600;
+}
+
+.vertical-section .full {
+    width: 100%;
+}
+
+paper-slider {
+    width:100px;
+}
+
+.sub-header {
+@apply(--layout);
+@apply(--layout-center);
+@apply(--layout-wrap);
+}
+
+.sub-header .title {
+@apply(--layout-flex);
+    min-width: 248px;
+}
+
+.sub-header .qos {
+    display: block;
+}
+
+.line {
+    margin-right: 24px;
+}
+
+.horizontal-section-container-end {
+    margin-top: 16px;
+@apply(--layout-horizontal);
+@apply(--layout-center);
+@apply(--layout-end-justified);
+@apply(--layout-wrap);
+}
+
+td, th {
+    border: 1px solid #999;
+    padding: 0.5rem;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #fafafa;
+}
+
+.connected {
+@apply(--status-icon);
+    background: darkseagreen;
+}
+
+.disconnected {
+@apply(--status-icon);
+    background: indianred;
+}
+
+.status {
+@apply(--layout);
+@apply(--layout-center);
+    margin-left: 1rem;
+}
+
+.status h3 {
+@apply(--layout-flex);
+    margin-right: 0.25rem;
+}
+
+.layout.wrap.center-center {
+    max-width: 800px;
+}
+
