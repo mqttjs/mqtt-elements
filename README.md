@@ -9,7 +9,7 @@ Polymer elements to establish a MQTT connection to an MQTT broker.
 ## Install
 
 ```
-bower install --save mqtt.js\mqtt-elements
+bower install --save mqttjs/mqtt-elements
 ```
 
 ## Import
