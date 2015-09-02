@@ -1,4 +1,9 @@
+![mqtt-elements](https://raw.githubusercontent.com/mqttjs/mqtt-elements/67266290fe6a0b6b3ff51418efb7c1c0662c78c5/assets/mqtt-elements.png)
+=======
+
+
 # mqtt-elements
+
 Polymer elements to establish a MQTT connection to an MQTT broker. 
 
 ## Install
