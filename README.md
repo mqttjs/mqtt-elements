@@ -16,7 +16,7 @@ bower install --save mqtt.js\mqtt-elements
 ## Usage
 
 ```
-    <mqtt-connection >
+    <mqtt-connection auto url="ws://127.0.0.1:3005">
         <mqtt-subscription
             topic="foo/bar"
             number-of-messages="Infinity"
@@ -45,9 +45,14 @@ grunt serve
 ```
 
 
-### Bundel MQTT.js
+#### Update annd bundel MQTT.js
 
-#### Bundel mqemitter
+```
+ browserify node_modules/mqtt/mqtt.js -o dist/mqtt.js
+
+```
+
+#### Update and bundel mqemitter
 ```
  browserify node_modules/mqemitter/mqemitter.js --standalone MQEmitter -o dist/mqemitter.js 
  
