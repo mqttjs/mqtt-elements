@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-connection-basic</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../mqtt-elements.html">
+
+</head>
+<body>
+
+<mqtt-connection></mqtt-connection>
+
+<script>
+//  Setp 2: get the element
+  var mqttElement =  document.querySelector('mqtt-connection');
+
+  suite('mqtt-connection-read-only', function() {
+    //  Setp 3: Test the element
+    test('It should not be possible to change <mqtt-connection>.connected', function() {
+      assert.isFalse(mqttElement.connected);
+      mqttElement.connecting = true;
+      assert.isFalse(mqttElement.connected);
+    });
+
+    test('It should not be possible to change <mqtt-connection>.disconnecting', function() {
+      assert.isFalse(mqttElement.disconnecting);
+      mqttElement.disconnecting = true;
+      assert.isFalse(mqttElement.disconnecting);
+    });
+
+  });
+</script>
+
+</body>
+</html>

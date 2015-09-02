@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-connection-basic</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../mqtt-elements.html">
+
+</head>
+<body>
+
+<mqtt-connection></mqtt-connection>
+<mqtt-connection id="mqttlens" client-id-prefix="mqttlens_"></mqtt-connection>
+
+<script>
+  //  Setp 2: get the element
+  var mqttElement =  document.querySelector('mqtt-connection');
+  var mqttlens =  document.querySelector('#mqttlens');
+
+  suite('mqtt-connection-private-methods', function() {
+    //  Setp 3: Test the element
+    test('_generateClientId returns a string', function() {
+      var id = mqttElement._generateClientId();
+      assert.typeOf(id, 'string', 'mqtt-connection._generateClientId should be a String');
+    });
+
+    test('Setting clientIdPrefix should return the prefix within the clientId', function() {
+      var id = mqttlens._generateClientId();
+      assert.typeOf(id, 'string', 'mqtt-connection._generateClientId should be a String');
+      assert.typeOf(id, 'string', 'mqtt-connection._generateClientId should be a String');
+
+    });
+
+
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-message-spec</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../mqtt-elements.html">
+
+</head>
+<body>
+
+<mqtt-connection url="ws://127.0.0.1:3000">
+  <mqtt-subscription topic="mqttjs/test"></mqtt-subscription>
+</mqtt-connection>
+
+<mqtt-connection id="multiple" url="ws://127.0.0.1:3000">
+  <mqtt-subscription topic="mqttjs/test1"></mqtt-subscription>
+  <mqtt-subscription topic="mqttjs/test2" qos="1"></mqtt-subscription>
+  <mqtt-subscription topic="mqttjs/test3" qos="2"></mqtt-subscription>
+</mqtt-connection>
+
+<script>
+  //  Setp 2: get the element
+  var mqttConnection =  document.querySelector('mqtt-connection');
+  var mqttConnectionMulti =  document.querySelector('#multiple');
+
+
+  suite('mqtt-connection-subscription', function() {
+    //  Setp 3: Test the element
+    test('Element is not null', function() {
+      assert.isNotNull(mqttConnection);
+      assert.typeOf(mqttConnection, 'object');
+    });
+
+    test('mqtt-connection has one subscriptions', function() {
+      assert.typeOf(mqttConnection.subscriptions, 'array');
+      expect(mqttConnection.subscriptions).to.have.length.of(1);
+    });
+
+    test('mqtt-connection#multiple has three subscriptions', function() {
+      assert.typeOf(mqttConnectionMulti.subscriptions, 'array');
+      expect(mqttConnectionMulti.subscriptions).to.have.length.of(3);
+    });
+
+  });
+</script>
+
+</body>
+</html>
