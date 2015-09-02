@@ -1,7 +1,39 @@
 # mqtt-elements
-Polymer elements for MQTT
+Polymer elements to establish a MQTT connection to an MQTT broker. 
 
-## Development 
+## Install
+
+```
+bower install --save mqtt.js\mqtt-elements
+```
+
+## Import
+
+```
+<link rel="import" href="../mqtt-elements/mqtt-elements.html">
+```
+
+## Usage
+
+```
+    <mqtt-connection >
+        <mqtt-subscription
+            topic="foo/bar"
+            number-of-messages="Infinity"
+            last-message="{{lastMessage}}"
+            messages="{{messages}}"
+            subscribed="{{subscribed}}"></mqtt-subscription>
+        <mqtt-publish 
+            auto
+            retained
+            topic="foo/bar"
+            payload="Hello world!"
+            qos="1"></mqtt-publish>        
+    </mqtt-connection>
+```
+
+## Development
+ 
 ```
 mkdir mqtt-wrapper && cd mqtt-wrapper 
 git clone https://github.com/mqttjs/mqtt-elements.git
