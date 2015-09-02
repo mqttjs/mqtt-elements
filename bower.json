@@ -14,6 +14,7 @@
     "tests"
   ],
   "dependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#~1.0.5",
     "iron-icons": "PolymerElements/iron-icons#~1.0.3",
     "mqtt-elements": "mqttjs/mqtt-elements#~0.0.1-beta",
     "paper-button": "PolymerElements/paper-button#~1.0.3",
