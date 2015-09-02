@@ -24,15 +24,15 @@ Enables a custom element to be included as an `mqtt-subscription` in an `mqtt-co
         /**
          * Fired when the element is removed from an `mqtt-connection`.
          *
-         * @event mqtt-subscription-register-unregister
+         * @event 'mqtt-subscription-unregister
          */
 
         /**
          * The `mqtt-connection` that the element is registered to.
          */
         _parentConnection: {
-          type: Object
-        }
+          type: Object,
+        },
       },
 
       attached: function() {
@@ -46,7 +46,6 @@ Enables a custom element to be included as an `mqtt-subscription` in an `mqtt-co
           this._parentConnection.fire('mqtt-subscription-unregister', {target: this});
         }
       },
-
     }
 
   })(window)

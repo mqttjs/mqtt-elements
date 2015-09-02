@@ -2,7 +2,19 @@
 <link rel="import" href="mqtt-publish-regestration-behaviour.html">
 
 <!--
-The `mqtt-subscription` element
+The `mqtt-publish` element publishes MQTT messages to an MQTT topic. Place the element within a `<mqtt-connection>`
+to create the binding between the connection and the element. The following example
+
+    <mqtt-connection >
+        <mqtt-publish
+            auto
+            retained
+            qos="1"
+            topic="foo/bar"
+            payload="Hello world!"></mqtt-publish>
+    </mqtt-connection>
+
+publishes a retained message to the topic "foo/bar".
 
 @demo demo/index.html
 -->
@@ -13,7 +25,6 @@ The `mqtt-subscription` element
 </dom-module>
 
 <script>
-
   'use strict';
 
   Polymer({
@@ -26,6 +37,7 @@ The `mqtt-subscription` element
      * @param {{
      *   topic:  string,
      *   qos: number,
+     *   payload: string | Object
      *   retained: boolean
      * }}
      */
@@ -38,7 +50,7 @@ The `mqtt-subscription` element
        */
       auto: {
         type: Boolean,
-        value: false
+        value: false,
       },
 
       /**
@@ -46,7 +58,7 @@ The `mqtt-subscription` element
        */
       qos: {
         type: Number,
-        value: 0
+        value: 0,
       },
 
       /**
@@ -61,15 +73,7 @@ The `mqtt-subscription` element
        */
       payload: {
         type: Object,
-        value: {}
-      },
-
-      /**
-       * True if the publication was successful
-       */
-      published: {
-        type: Boolean,
-        value: false
+        value: {},
       },
 
       /**
@@ -77,15 +81,23 @@ The `mqtt-subscription` element
        */
       retained: {
         type: Boolean,
-        value: false
+        value: false,
       },
 
+      /**
+       * True if the publication was successful
+       */
+      published: {
+        type: Boolean,
+        value: false,
+        readOnly: true,
+      },
     },
 
     behaviors: [MqttElements.MqttPublishRegestrationBehaviour],
 
     observers: [
-        '_propertiesChanged(topic, payload, qos, retained)'
+      '_propertiesChanged(topic, payload, qos, retained)'
     ],
 
     /**
@@ -96,20 +108,40 @@ The `mqtt-subscription` element
      * @param retained
      * @private
      */
-    _propertiesChanged: function(topic, payload, qos, retained){
-      if (this.auto && topic && payload && this._parentConnection){
+    _propertiesChanged: function (topic, payload, qos, retained) {
+      if(this.auto && topic && payload && this._parentConnection) {
+        this._setPublished(false);
         this._parentConnection.publish(topic, payload, qos, retained);
       }
     },
 
-    publish: function(){
-      if (this.topic && this.topic.length > 0 && this.payload && this.payload.length > 0 && this._parentConnection){
+    /**
+     * Manually publishes the <mqtt-publish> element to the <mqtt-connection> it is bound to. Use the attributes on the
+     * Element to set the topic, payload, QoS an retained flag for the MQTT message.
+     */
+    publish: function () {
+      if(this.topic && this.topic.length > 0 && this.payload && this.payload.length > 0 && this._parentConnection) {
+        this._setPublished(false);
         this._parentConnection.publish(this.topic, this.payload, this.qos, this.retained);
       }
     },
 
-    _handelPublicationPublished: function() {
-      this.fire("mqtt-publication-published");
+    /**
+     * Callback handel to notify the element that the payload has been published
+     * @private
+     */
+    _handelPublicationPublished: function () {
+      this._setPublished(true);
+
+      this.fire(
+          "mqtt-publication-published",
+          {
+            qos: this.qos,
+            topic: this.topic,
+            payload: this.payload,
+            retained: this.retained
+          }
+      );
     },
 
   });

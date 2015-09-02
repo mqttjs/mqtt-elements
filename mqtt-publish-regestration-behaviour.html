@@ -4,6 +4,7 @@
 <!--
 Enables a custom element to be included as an `mqtt-subscription` in an `mqtt-connection`.
 -->
+
 <script>
   (function(scope) {
     var MqttElements = scope.MqttElements = scope.MqttElements || {};
@@ -31,8 +32,8 @@ Enables a custom element to be included as an `mqtt-subscription` in an `mqtt-co
          * The `mqtt-connection` that the element is registered to.
          */
         _parentConnection: {
-          type: Object
-        }
+          type: Object,
+        },
       },
 
       attached: function() {
@@ -47,7 +48,6 @@ Enables a custom element to be included as an `mqtt-subscription` in an `mqtt-co
           this._parentConnection.fire('mqtt-publish-unregister', {target: this});
         }
       },
-
     }
 
   })(window)
