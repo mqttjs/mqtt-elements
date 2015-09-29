@@ -1,10 +1,16 @@
-# mqtt-elements
-Polymer elements to establish a MQTT connection to an MQTT broker. 
+![mqtt-elements](https://raw.githubusercontent.com/mqttjs/mqtt-elements/67266290fe6a0b6b3ff51418efb7c1c0662c78c5/assets/mqtt-elements.png)
+=======
+
+Polymer elements to establish a MQTT connection to an MQTT broker.
+ 
+## API
+
+[API documentation](http://mqttjs.github.io/mqtt-elements/bower_components/mqtt-elements/)
 
 ## Install
 
 ```
-bower install --save mqtt.js\mqtt-elements
+bower install --save mqttjs/mqtt-elements
 ```
 
 ## Import
