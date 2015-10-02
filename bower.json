@@ -31,6 +31,7 @@
     "paper-slider": "PolymerElements/paper-slider#~1.0.6",
     "paper-toggle-button": "PolymerElements/paper-toggle-button#~1.0.8",
     "paper-tooltip": "PolymerElements/paper-tooltip#~1.1.0",
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0",
     "web-component-tester": "~3.3.22"
   }
 }
