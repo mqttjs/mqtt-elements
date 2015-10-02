@@ -15,80 +15,92 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <title>mqtt-connection-events</title>
 
   <script src="../../webcomponentsjs/webcomponents.min.js"></script>
-
   <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
 
   <!-- Step 1: import the element to test -->
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
   <link rel="import" href="../mqtt-elements.html">
 
 </head>
 <body>
 
-<mqtt-connection></mqtt-connection>
+<test-fixture id="Connection">
+  <template>
+    <mqtt-connection></mqtt-connection>
+  </template>
+</test-fixture>
 
 <script>
-  //  Setp 2: get the element
-  var mqttElement =  document.querySelector('mqtt-connection');
-
-  suite('mqtt-connection-events', function() {
-    //  Setp 3: Test the element
-    test('calling _handelConnected should fire a `mqtt-connection-connected` event', function() {
-      mqttElement.addEventListener('mqtt-connection-connected', function(){
-        // TODO signal the testrunner that the test succeeded
-        console.log("mqtt-connection-connected")
+  var mqttElement;
+  suite('<mqtt-connection>', function () {
+    suite('mqtt-connection-events', function () {
+      setup(function () {
+        mqttElement = fixture('Connection');
       });
-      mqttElement._handelConnected();
-      // TODO Make sure event is fired
-    });
 
-    test('calling _handelReconnect should fire a `mqtt-connection-reconnect` event', function() {
-      mqttElement.addEventListener('mqtt-connection-reconnect', function(){
-        // TODO signal the testrunner that the test succeeded
-        console.log("mqtt-connection-reconnect")
+      //  Setp 3: Test the element
+      test('calling _handelConnected should fire a `mqtt-connection-connected` event', function () {
+        mqttElement.addEventListener('mqtt-connection-connected', function () {
+          // TODO signal the testrunner that the test succeeded
+          console.log("mqtt-connection-connected")
+        });
+        mqttElement._handelConnected();
+        // TODO Make sure event is fired
       });
-      mqttElement._handelReconnect();
-      // TODO Make sure event is fired
-    });
 
-    test('calling _handelClose should fire a `mqtt-connection-close` event', function() {
-      mqttElement.addEventListener('mqtt-connection-close', function(){
-        // TODO signal the testrunner that the test succeeded
-        console.log("mqtt-connection-close")
+      test('calling _handelReconnect should fire a `mqtt-connection-reconnect` event', function () {
+        mqttElement.addEventListener('mqtt-connection-reconnect', function () {
+          // TODO signal the testrunner that the test succeeded
+          console.log("mqtt-connection-reconnect")
+        });
+        mqttElement._handelReconnect();
+        // TODO Make sure event is fired
       });
-      mqttElement._handelClose();
-      // TODO Make sure event is fired
-    });
 
-    test('calling _handelOffline should fire a `mqtt-connection-offline` event', function() {
-      mqttElement.addEventListener('mqtt-connection-offline', function(){
-        // TODO signal the testrunner that the test succeeded
-        console.log("mqtt-connection-offline")
+      test('calling _handelClose should fire a `mqtt-connection-close` event', function () {
+        mqttElement.addEventListener('mqtt-connection-close', function () {
+          // TODO signal the testrunner that the test succeeded
+          console.log("mqtt-connection-close")
+        });
+        mqttElement._handelClose();
+        // TODO Make sure event is fired
       });
-      mqttElement._handelOffline();
-      // TODO Make sure event is fired
-    });
 
-    test('calling _handelError should fire a `mqtt-connection-reconnect` event', function() {
-      mqttElement.addEventListener('mqtt-connection-reconnect', function(){
-        // TODO signal the testrunner that the test succeeded
-        console.log("mqtt-connection-reconnect")
+      test('calling _handelOffline should fire a `mqtt-connection-offline` event', function () {
+        mqttElement.addEventListener('mqtt-connection-offline', function () {
+          // TODO signal the testrunner that the test succeeded
+          console.log("mqtt-connection-offline")
+        });
+        mqttElement._handelOffline();
+        // TODO Make sure event is fired
       });
-      mqttElement._handelError();
-      // TODO Make sure event is fired
-    });
 
-    test('calling _handelMessage should fire a `mqtt-message` event', function() {
-      mqttElement.addEventListener('mqtt-message', function(){
-        // TODO signal the testrunner that the test succeeded
-        console.log("mqtt-message")
+      test('calling _handelError should fire a `mqtt-connection-reconnect` event', function () {
+        mqttElement.addEventListener('mqtt-connection-reconnect', function () {
+          // TODO signal the testrunner that the test succeeded
+          console.log("mqtt-connection-reconnect")
+        });
+        mqttElement._handelError();
+        // TODO Make sure event is fired
       });
-      // TODO generate a test message and packet
-      var message = {};
-      var packet = {};
-      mqttElement._handelMessage("mqttjs/test/message", message, packet);
-      // TODO Make sure event is fired
-    });
 
+      test('calling _handelMessage should fire a `mqtt-message` event', function () {
+        mqttElement.addEventListener('mqtt-message', function () {
+          // TODO signal the testrunner that the test succeeded
+          console.log("mqtt-message")
+        });
+        // TODO generate a test message and packet
+        var message = {};
+        var packet = {};
+        mqttElement._handelMessage("mqttjs/test/message", message, packet);
+        // TODO Make sure event is fired
+      });
+
+    });
   });
 </script>
 

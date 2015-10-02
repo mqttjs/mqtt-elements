@@ -5,39 +5,70 @@
   <title>mqtt-connection-basic</title>
 
   <script src="../../webcomponentsjs/webcomponents.min.js"></script>
-
   <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
 
   <!-- Step 1: import the element to test -->
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
+
   <link rel="import" href="../mqtt-elements.html">
 
 </head>
 <body>
 
-<mqtt-connection></mqtt-connection>
-<mqtt-connection id="mqttlens" client-id-prefix="mqttlens_"></mqtt-connection>
+<test-fixture id="Connection">
+  <template>
+    <mqtt-connection></mqtt-connection>
+  </template>
+</test-fixture>
+
+<test-fixture id="ConnectionWithCustomClientIDPrefix">
+  <template is="dom-template">
+    <mqtt-connection client-id-prefix="{{prefix}}"></mqtt-connection>
+  </template>
+</test-fixture>
+
 
 <script>
-  //  Setp 2: get the element
-  var mqttElement =  document.querySelector('mqtt-connection');
-  var mqttlens =  document.querySelector('#mqttlens');
+  var mqttElement;
+  suite('<mqtt-connection>', function () {
 
-  suite('mqtt-connection-private-methods', function() {
-    //  Setp 3: Test the element
-    test('_generateClientId returns a string', function() {
-      var id = mqttElement._generateClientId();
-      assert.typeOf(id, 'string', 'mqtt-connection._generateClientId should be a String');
-    });
+    suite('mqtt-connection-private-methods', function () {
+      setup(function () {
+        mqttElement = fixture('Connection');
+      });
 
-    test('Setting clientIdPrefix should return the prefix within the clientId', function() {
-      var id = mqttlens._generateClientId();
-      assert.typeOf(id, 'string', 'mqtt-connection._generateClientId should be a String');
-      assert.typeOf(id, 'string', 'mqtt-connection._generateClientId should be a String');
+      //  Setup 3: Test the element
+      test('_generateClientId returns a string', function () {
+        var id = mqttElement._generateClientId();
+        assert.typeOf(id, 'string', 'mqtt-connection._generateClientId should be a String');
+      });
 
     });
 
+    suite('mqtt-connection-private-methods', function () {
+      var clientIdPrefix = {prefix: "mqttlens_"}
+      setup(function () {
+        mqttElement = fixture('ConnectionWithCustomClientIDPrefix', clientIdPrefix);
+      });
+
+      test('Setting clientIdPrefix should return the prefix within the clientId', function () {
+        var id = mqttElement._generateClientId();
+        console.warn("mqttElement", mqttElement.clientIdPrefix);
+        assert.typeOf(id, 'string', 'mqtt-connection._generateClientId should be a String');
+        expect(id).to.contain(clientIdPrefix.prefix);
+      });
+
+    });
 
   });
+
+
 </script>
 
 </body>

@@ -5,33 +5,49 @@
   <title>mqtt-connection-basic</title>
 
   <script src="../../webcomponentsjs/webcomponents.min.js"></script>
-
   <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
 
   <!-- Step 1: import the element to test -->
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
   <link rel="import" href="../mqtt-elements.html">
 
 </head>
 <body>
 
-<mqtt-connection></mqtt-connection>
+<test-fixture id="Connection">
+  <template>
+    <mqtt-connection></mqtt-connection>
+  </template>
+</test-fixture>
 
 <script>
-//  Setp 2: get the element
-  var mqttElement =  document.querySelector('mqtt-connection');
+  //  Setp 2: get the element
+  var mqttElement;
 
-  suite('mqtt-connection-read-only', function() {
-    //  Setp 3: Test the element
-    test('It should not be possible to change <mqtt-connection>.connected', function() {
-      assert.isFalse(mqttElement.connected);
-      mqttElement.connecting = true;
-      assert.isFalse(mqttElement.connected);
-    });
+  suite('<mqtt-connection>', function () {
+    suite('mqtt-connection-read-only', function () {
+      setup(function () {
+        mqttElement = fixture('Connection');
+      });
 
-    test('It should not be possible to change <mqtt-connection>.disconnecting', function() {
-      assert.isFalse(mqttElement.disconnecting);
-      mqttElement.disconnecting = true;
-      assert.isFalse(mqttElement.disconnecting);
+      //  Setp 3: Test the element
+      test('It should not be possible to change <mqtt-connection>.connected', function () {
+        assert.isFalse(mqttElement.connected);
+        mqttElement.connecting = true;
+        assert.isFalse(mqttElement.connected);
+      });
+
+      test('It should not be possible to change <mqtt-connection>.disconnecting', function () {
+        assert.isFalse(mqttElement.disconnecting);
+        mqttElement.disconnecting = true;
+        assert.isFalse(mqttElement.disconnecting);
+      });
+
     });
 
   });
