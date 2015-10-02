@@ -18,7 +18,7 @@
     <!--create mqtt-connection element-->
     <mqtt-connection
         id="connection"
-        url="[[toWsUrl(url, port)]]"
+        url="[[url]]"
         connected="{{connected}}"
         client="{{client}}"
         subscriptions="{{subscriptions}}"
@@ -54,7 +54,7 @@
         </div>
         <!--bind url and port for the mqtt-broker url-->
         <paper-input label="MQTT-Broker URL" value="{{url}}"></paper-input>
-        <paper-input label="MQTT-Broker Port" value="{{port}}"></paper-input>
+        <!--<paper-input label="MQTT-Broker Port" value="{{port}}"></paper-input>-->
         <div class="horizontal-section-container-end">
           <!--buttons to connect or disconnect the connection-->
           <paper-button raised on-tap="connect">connect</paper-button>
@@ -150,12 +150,7 @@
 
         url: {
           type: String,
-          value: "127.0.0.1",
-        },
-
-        port: {
-          type: Number,
-          value: 3005,
+          value: "ws://test.mosca.io:80",
         },
 
         topic: {
