@@ -41,13 +41,14 @@
 <script>
   //  Setp 2: get the element
   var mqttElement;
-  var mqttDisabledAuto
+  var mqttDisabledAuto;
+
   suite('<mqtt-connection>', function () {
+
 
     suite('mqtt-connection-spec', function () {
       setup(function () {
         mqttElement = fixture('AutoConnection');
-        mqttDisabledAuto = fixture('NoAutoConnection');
       });
 
       //  Setp 3: Test the element
@@ -76,10 +77,6 @@
         assert.isTrue(mqttElement.auto);
       });
 
-      test('mqtt-connection#auto.auto is boolean', function () {
-        assert.isBoolean(mqttDisabledAuto.auto, 'mqtt-connection.auto should be a boolean');
-        assert.isFalse(mqttDisabledAuto.auto);
-      });
 
       test('mqtt-connection.auto is false', function () {
         assert.isBoolean(mqttElement.auto, 'mqtt-connection.auto should be a boolean');
@@ -137,6 +134,18 @@
         assert.typeOf(mqttElement.url, 'string', 'mqtt-connection.url should be a string');
       });
     });
+
+    suite('mqtt-conntection-no-auto-spec', function(){
+      setup(function () {
+        mqttDisabledAuto = fixture('NoAutoConnection');
+      });
+
+      test('mqtt-connection#auto.auto is boolean', function () {
+        assert.isBoolean(mqttDisabledAuto.auto, 'mqtt-connection.auto should be a boolean');
+        assert.isFalse(mqttDisabledAuto.auto);
+      });
+    });
+
   });
 </script>
 
