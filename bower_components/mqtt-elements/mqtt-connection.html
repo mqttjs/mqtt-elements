@@ -155,7 +155,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
        * For further documentation see https://github.com/mqttjs/MQTT.js/wiki/connection#mqttconnectionconnectoptions
        * * options.protocolId :String The mqtt protocolId tha is send to the mqtt broker DEFAULT: "MQTT"
        * * options.protocolVersion :number 4
-       * * options.keepalive :number 10
+       * * options.keepalive :number 120
        * * options.clientId :String
        * * options.clean :boolean
        * * options.username :String The username that is user to authenticate the connection with
@@ -218,6 +218,18 @@ element. And manually connect if `auto` is set to `false` with `connect`
         value: '',
       },
 
+      /**
+       * When injecting the client object into different `<mqtt-connection>` element, each element will register to
+       * listen for changes/ messages in the connection. To detect memory leaks the the `EventEmitter` raises an error
+       * when more than `EventEmitter.maxListeners` (default 10) are registering to the client.
+       *
+       */
+      maxListeners: {
+        type: Number,
+        value: 10,
+        observer: "_maxListenersChanged"
+      }
+
     },
 
     listeners: {
@@ -231,6 +243,13 @@ element. And manually connect if `auto` is set to `false` with `connect`
     attached: function () {
       if(this.auto) {
         this.connect();
+      }
+    },
+
+
+    _maxListenersChanged: function(maxListeners, old){
+      if (this.client && maxListeners){
+        this.client.setMaxListeners(maxListeners);
       }
     },
 
@@ -342,6 +361,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       if(mqtt) {
         this.options.clientId = this._generateClientId();
         this.client = mqtt.connect(this.url, this.options);
+        this.client.setMaxListeners(this.maxListeners);
       } else {
         // failed to load mqtt.js
         // TODO SKO tell the user about this and maybe log environment
