@@ -4,42 +4,60 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>mqtt-connection-basic</title>
 
-  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
 
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
 
   <!-- Step 1: import the element to test -->
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
+
   <link rel="import" href="../mqtt-elements.html">
 
 </head>
 <body>
 
-<mqtt-connection></mqtt-connection>
+<test-fixture id="Connection">
+  <template>
+    <mqtt-connection></mqtt-connection>
+  </template>
+</test-fixture>
 
 <script>
-//  Setp 2: get the element
-  var mqttElement =  document.querySelector('mqtt-connection');
+  var mqttElement;
+  suite('<mqtt-connection>', function () {
 
-  suite('mqtt-connection-change-properties', function() {
-    //  Setp 3: Test the element
-    test('It should be possible to change <mqtt-connection>.disableAuto', function() {
-      assert.isFalse(mqttElement.auto);
-      mqttElement.auto = true;
-      assert.isTrue(mqttElement.auto);
+
+    suite('mqtt-connection-change-properties', function () {
+      setup(function () {
+        mqttElement = fixture('Connection');
+      });
+
+      //  Setp 3: Test the element
+      test('It should be possible to change <mqtt-connection>.auto', function () {
+        assert.isFalse(mqttElement.auto);
+        mqttElement.auto = true;
+        assert.isTrue(mqttElement.auto);
+      });
+
+      test('It should be possible to change <mqtt-connection>.clean', function () {
+        assert.isTrue(mqttElement.clean);
+        mqttElement.clean = false;
+        assert.isFalse(mqttElement.clean);
+      });
+
+      test('It should be possible to change <mqtt-connection>.url', function () {
+        assert.strictEqual(mqttElement.url, "");
+        mqttElement.url = "ws://localhost";
+        assert.strictEqual(mqttElement.url, "ws://localhost");
+      });
+
     });
-
-    test('It should be possible to change <mqtt-connection>.clean', function() {
-      assert.isTrue(mqttElement.clean);
-      mqttElement.clean = false;
-      assert.isFalse(mqttElement.clean);
-    });
-
-    test('It should be possible to change <mqtt-connection>.url', function() {
-      assert.strictEqual(mqttElement.url, "");
-      mqttElement.url = "ws://localhost";
-      assert.strictEqual(mqttElement.url, "ws://localhost");
-    });
-
   });
 </script>
 
