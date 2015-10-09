@@ -22,6 +22,7 @@
         connected="{{connected}}"
         client="{{client}}"
         subscriptions="{{subscriptions}}"
+        options='{{options}}'
         on-mqtt-message="_handelMqttMessage">
 
       <!--create a mqtt subscription for every item in topics-->
@@ -59,6 +60,15 @@
           <!--buttons to connect or disconnect the connection-->
           <paper-button raised on-tap="connect">connect</paper-button>
           <paper-button raised on-tap="disconnect">disconnect</paper-button>
+          <paper-icon-button on-tap="_showOptions"
+                             icon="icons:settings"
+                             alt="show options"
+                             title="show options"></paper-icon-button>
+        </div>
+        <div hidden$="{{!showOptions}}" class="horizontal-section-container">
+          <h3>Credentials</h3>
+          <paper-input label="username" value="{{username}}"></paper-input>
+          <paper-input label="password" value="{{password}}"></paper-input>
         </div>
       </div>
 
@@ -146,7 +156,10 @@
       is: 'demo-element',
 
       properties: {
-
+        showOptions: {
+          type: Boolean,
+          value: false,
+        },
 
         url: {
           type: String,
@@ -166,16 +179,47 @@
         topics: {
           type: Array,
           value: function () {
-            return [{topic: "foo/bar", qos:0}, {topic: "mqttjs/elements", qos:1}];
+            return [];
           },
         },
 
-        publishTopics: {
-          type: Array,
-          value: function () {
-            return ["foo/bar"];
-          },
+        options: {
+          type: Object,
+          computed: "_computeOptions(username, password)",
         },
+
+        username: {
+          type: String,
+        },
+
+        password: {
+          type: String,
+        },
+      },
+
+      observers: [],
+
+      _computeOptions: function (username, password) {
+        console.log("_computeOptions", arguments);
+        var _options = {
+          protocolId: "MQTT",
+          protocolVersion: 4,
+          keepalive: 10,
+          reconnectPeriod: 1000,
+          clientId: "",
+          encoding: "string",
+        };
+
+        if(username && username.length > 0 && password && password.length > 0) {
+          _options.username = username;
+          _options.password = password;
+        }
+
+        return _options;
+      },
+
+      _showOptions: function () {
+        this.showOptions = !this.showOptions;
       },
 
       _sendMessage: function (event) {
@@ -183,27 +227,18 @@
       },
 
       _addSub: function () {
-        if (this.newSubTopic.length > 0){
+        if(this.newSubTopic.length > 0) {
           this.push("topics", {topic: this.newSubTopic, qos: this.subQos});
         }
       },
 
       _handelMqttMessage: function (event, message) {
-
         if(message && message.topic) {
           this.push('messages', {
             topic: message.topic,
             message: String.fromCharCode.apply(null, message.message)
           });
         }
-      },
-
-      parseMessage: function (message) {
-        return String.fromCharCode.apply(null, message.message.payload);
-      },
-
-      toWsUrl: function (url, port) {
-        return "ws://" + url + ":" + port;
       },
 
       disconnect: function () {
