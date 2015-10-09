@@ -42,6 +42,7 @@
   //  Setp 2: get the element
   var mqttElement;
   var mqttDisabledAuto;
+  var mqttMaxListeners;
 
   suite('<mqtt-connection>', function () {
 
@@ -76,7 +77,6 @@
         assert.isBoolean(mqttElement.auto, 'mqtt-connection.auto should be a boolean');
         assert.isTrue(mqttElement.auto);
       });
-
 
       test('mqtt-connection.auto is false', function () {
         assert.isBoolean(mqttElement.auto, 'mqtt-connection.auto should be a boolean');
@@ -143,6 +143,19 @@
       test('mqtt-connection#auto.auto is boolean', function () {
         assert.isBoolean(mqttDisabledAuto.auto, 'mqtt-connection.auto should be a boolean');
         assert.isFalse(mqttDisabledAuto.auto);
+      });
+    });
+
+    suite('mqtt-conntection-with-increased-max-listeners', function(){
+      setup(function () {
+        mqttMaxListeners = fixture('MaxListeners');
+      });
+
+      test('mqtt-connection#maxListeners is number', function () {
+        assert.isNumber(mqttMaxListeners.maxListeners, 'mqtt-connection.maxListeners should be a number');
+        assert.strictEqual(mqttMaxListeners.options.maxListeners, 15);
+        mqttMaxListeners.maxListeners = 30;
+        assert.strictEqual(mqttMaxListeners.options.maxListeners, 30);
       });
     });
 
