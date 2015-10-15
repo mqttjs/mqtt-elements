@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-subscription-spec</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../mqtt-elements.html">
+
+</head>
+<body>
+<test-fixture id="StanaloneMqttPublish">
+  <mqtt-publish></mqtt-publish>
+</test-fixture>
+
+<script>
+  //  Setp 2: get the element
+  var mqttPublish;
+
+
+  suite('mqtt-subscription-spec', function () {
+    setup(function () {
+      mqttPublish = fixture('mqtt-publish');
+    });
+
+    //  Setp 3: Test the element
+    test('Element is not null', function () {
+      assert.isNotNull(mqttPublish);
+      assert.typeOf(mqttPublish, 'object');
+    });
+
+  });
+</script>
+
+</body>
+</html>
