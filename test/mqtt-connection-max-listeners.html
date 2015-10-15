@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-connection-max-listeners</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../mqtt-elements.html">
+</head>
+<body>
+
+<template id="AutoConnection" is="dom-bind">
+  <!--real mqtt element-->
+  <mqtt-connection auto url="ws://localhost:3005" client="{{mqttClient}}"></mqtt-connection>
+
+  <!--injected mqtt elements-->
+  <mqtt-connection client="[[mqttClient]]"></mqtt-connection>
+  <mqtt-connection client="[[mqttClient]]"></mqtt-connection>
+  <mqtt-connection client="[[mqttClient]]"></mqtt-connection>
+  <mqtt-connection client="[[mqttClient]]"></mqtt-connection>
+  <mqtt-connection client="[[mqttClient]]"></mqtt-connection>
+  <mqtt-connection client="[[mqttClient]]"></mqtt-connection>
+  <div>
+    <mqtt-connection></mqtt-connection>
+    <mqtt-connection></mqtt-connection>
+  </div>
+</template>
+
+
+<script>
+  //  Setp 2: get the element
+  var mqttElement;
+  var mqttConnection;
+  var otherConnections;
+
+
+  suite('<mqtt-connection>', function () {
+
+
+    suite('mqtt-connection-max-listeners', function () {
+      setup(function () {
+        mqttElement = document.querySelector("#AutoConnection");
+      });
+
+      //  Setup 3: Test the element
+      test('mqtt-connection.client will throw an error if more than 7 mqtt-connection elements are registered ' +
+          'on the same client object ', function (done) {
+        mqttConnection = document.querySelector("mqtt-connection");
+        otherConnections = document.querySelectorAll("div > mqtt-connection");
+        try {
+          otherConnections[0].client = mqttConnection.client;
+        } catch (error) {
+          console.log("ERROR", error);
+          done();
+        }
+      });
+
+      //  Setup 3: Test the element
+      test('mqtt-connection.client will not throw an error if more than 7 mqtt-connection elements are registered ' +
+          'on the same client object ', function (done) {
+        mqttConnection = document.querySelector("mqtt-connection");
+        mqttConnection.maxListeners = 12;
+        otherConnections = document.querySelectorAll("div > mqtt-connection");
+        try {
+          otherConnections[0].client = mqttConnection.client;
+//          otherConnections[1].client = mqttConnection.client;
+        } catch (error) {
+          throw error;
+        }
+        done();
+      });
+
+    });
+
+  });
+</script>
+
+</body>
+</html>
