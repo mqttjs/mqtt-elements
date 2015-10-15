@@ -183,6 +183,27 @@ element. And manually connect if `auto` is set to `false` with `connect`
         },
       },
 
+      username: {
+        type: String,
+        readOnly: false,
+        notify: true,
+        observer: "_usernameChanged"
+      },
+
+      password: {
+        type: String,
+        readOnly: false,
+        notify: true,
+        observer: "_passwordChanged"
+      },
+
+      withCredentials: {
+        type: Boolean,
+        readOnly: false,
+        notify: true,
+        value: false,
+      },
+
       /**
        * An array of all `<mqtt-publish>` elements that are placed within this `<mqtt-connection>` element.
        */
@@ -194,7 +215,6 @@ element. And manually connect if `auto` is set to `false` with `connect`
           return [];
         },
       },
-
 
       /**
        * An array of all `<mqtt-subscription>` elements that are placed within this `<mqtt-connection>` element. Use
@@ -232,6 +252,10 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
     },
 
+    observers: [
+      '_usernameOrPasswordChanged(username, options.username, password, options.password)'
+    ],
+
     listeners: {
       'mqtt-subscription-register': '_subscriptionElementRegistered',
       'mqtt-subscription-unregister': '_subscriptionElementUnregistered',
@@ -239,13 +263,21 @@ element. And manually connect if `auto` is set to `false` with `connect`
       'mqtt-publish-unregister': '_publishElementUnregistered',
     },
 
-
     attached: function () {
-      if(this.auto) {
+      if(this.auto && !this.withCredentials) {
         this.connect();
       }
     },
 
+    _usernameChanged: function(username, old){
+      this.set("options.username", username);
+    },
+
+    _passwordChanged: function(password, old){
+      this.set("options.password", password);
+    },
+
+    _usernameOrPasswordChanged: function(username, optUsername, password, optPassword){},
 
     _maxListenersChanged: function(maxListeners, old){
       if (this.client && maxListeners){
