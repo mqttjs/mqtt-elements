@@ -43,7 +43,6 @@ Enables a custom element to be included as an `mqtt-subscription` in an `mqtt-co
       },
 
       detached: function() {
-        console.log('detached', this.topic);
         if (this._parentConnection) {
           this._parentConnection.fire('mqtt-publish-unregister', {target: this});
         }

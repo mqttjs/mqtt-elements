@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mqtt-elements</title>
+  <script type="text/javascript" src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../mqtt-elements.html">
+</head>
+<body unresolved class="fullbleed">
+
+<mqtt-connection url="ws://localhost:3005" auto>
+  <mqtt-publish topic="foo/bar" payload="this is eays" auto></mqtt-publish>
+</mqtt-connection>
+
+</body>
+</html>

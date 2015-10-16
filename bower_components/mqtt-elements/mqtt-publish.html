@@ -26,123 +26,126 @@ publishes a retained message to the topic "foo/bar".
 
 <script>
   'use strict';
+  (function (scope) {
 
-  Polymer({
-    is: 'mqtt-publish',
+    var MqttElements = scope.MqttElements = scope.MqttElements || {};
 
-    /**
-     * Fired when a publication is published.
-     *
-     * @event mqtt-publication-published
-     * @param {{
+    MqttElements.MqttPublish = Polymer({
+      is: 'mqtt-publish',
+
+      /**
+       * Fired when a publication is published.
+       *
+       * @event mqtt-publication-published
+       * @param {{
      *   topic:  string,
      *   qos: number,
      *   payload: string | Object
      *   retained: boolean
      * }}
-     */
+       */
 
-    properties: {
+      properties: {
+
+        /**
+         * If auto is set to true `<mqtt-publish auto>` then an MQTT message is send each time
+         * the payload is changed.
+         */
+        auto: {
+          type: Boolean,
+          value: false,
+        },
+
+        /**
+         * The quality of service the MQTT publication is send to the MQTT broker
+         */
+        qos: {
+          type: Number,
+          value: 0,
+        },
+
+        /**
+         * The topic the publication is made to
+         */
+        topic: {
+          type: String,
+        },
+
+        /**
+         * The payload that is send to the topic
+         */
+        payload: {
+          type: Object,
+          value: {},
+        },
+
+        /**
+         * Set retained to true if the message should be saved at the MQTT broker an should "stick" on it.
+         */
+        retained: {
+          type: Boolean,
+          value: false,
+        },
+
+        /**
+         * True if the publication was successful
+         */
+        published: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+        },
+      },
+
+      behaviors: [MqttElements.MqttPublishRegestrationBehaviour],
+
+      observers: [
+        '_propertiesChanged(topic, payload, qos, retained, _parentConnection)'
+      ],
 
       /**
-       * If auto is set to true `<mqtt-publish auto>` then an MQTT message is send each time
-       * the payload is changed.
+       * A property observer to send messages if `auto` is set to true and values change
+       * @param topic
+       * @param payload
+       * @param qos
+       * @param retained
+       * @private
        */
-      auto: {
-        type: Boolean,
-        value: false,
+      _propertiesChanged: function (topic, payload, qos, retained, _parentConnection) {
+        if(this.auto && topic && payload && this._parentConnection) {
+          this.publish();
+        }
       },
 
       /**
-       * The quality of service the MQTT publication is send to the MQTT broker
+       * Manually publishes the <mqtt-publish> element to the <mqtt-connection> it is bound to. Use the attributes on the
+       * Element to set the topic, payload, QoS an retained flag for the MQTT message.
        */
-      qos: {
-        type: Number,
-        value: 0,
+      publish: function () {
+        if(this.topic && this.topic.length > 0 && this.payload && this.payload.length > 0 && this._parentConnection) {
+          this._setPublished(false);
+          this._parentConnection.publish(this.topic, this.payload, this.qos, this.retained);
+        }
       },
 
       /**
-       * The topic the publication is made to
+       * Callback handel to notify the element that the payload has been published
+       * @private
        */
-      topic: {
-        type: String,
+      _handelPublicationPublished: function () {
+        this._setPublished(true);
+
+        this.fire(
+            "mqtt-publication-published",
+            {
+              qos: this.qos,
+              topic: this.topic,
+              payload: this.payload,
+              retained: this.retained
+            }
+        );
       },
 
-      /**
-       * The payload that is send to the topic
-       */
-      payload: {
-        type: Object,
-        value: {},
-      },
-
-      /**
-       * Set retained to true if the message should be saved at the MQTT broker an should "stick" on it.
-       */
-      retained: {
-        type: Boolean,
-        value: false,
-      },
-
-      /**
-       * True if the publication was successful
-       */
-      published: {
-        type: Boolean,
-        value: false,
-        readOnly: true,
-      },
-    },
-
-    behaviors: [MqttElements.MqttPublishRegestrationBehaviour],
-
-    observers: [
-      '_propertiesChanged(topic, payload, qos, retained)'
-    ],
-
-    /**
-     * A property observer to send messages if `auto` is set to true and values change
-     * @param topic
-     * @param payload
-     * @param qos
-     * @param retained
-     * @private
-     */
-    _propertiesChanged: function (topic, payload, qos, retained) {
-      if(this.auto && topic && payload && this._parentConnection) {
-        this._setPublished(false);
-        this._parentConnection.publish(topic, payload, qos, retained);
-      }
-    },
-
-    /**
-     * Manually publishes the <mqtt-publish> element to the <mqtt-connection> it is bound to. Use the attributes on the
-     * Element to set the topic, payload, QoS an retained flag for the MQTT message.
-     */
-    publish: function () {
-      if(this.topic && this.topic.length > 0 && this.payload && this.payload.length > 0 && this._parentConnection) {
-        this._setPublished(false);
-        this._parentConnection.publish(this.topic, this.payload, this.qos, this.retained);
-      }
-    },
-
-    /**
-     * Callback handel to notify the element that the payload has been published
-     * @private
-     */
-    _handelPublicationPublished: function () {
-      this._setPublished(true);
-
-      this.fire(
-          "mqtt-publication-published",
-          {
-            qos: this.qos,
-            topic: this.topic,
-            payload: this.payload,
-            retained: this.retained
-          }
-      );
-    },
-
-  });
+    })
+  })(window);
 </script>
