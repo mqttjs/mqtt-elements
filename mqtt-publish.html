@@ -97,7 +97,7 @@ publishes a retained message to the topic "foo/bar".
     behaviors: [MqttElements.MqttPublishRegestrationBehaviour],
 
     observers: [
-      '_propertiesChanged(topic, payload, qos, retained)'
+      '_propertiesChanged(topic, payload, qos, retained, _parentConnection)'
     ],
 
     /**
@@ -108,10 +108,9 @@ publishes a retained message to the topic "foo/bar".
      * @param retained
      * @private
      */
-    _propertiesChanged: function (topic, payload, qos, retained) {
+    _propertiesChanged: function (topic, payload, qos, retained, _parentConnection) {
       if(this.auto && topic && payload && this._parentConnection) {
-        this._setPublished(false);
-        this._parentConnection.publish(topic, payload, qos, retained);
+        this.publish();
       }
     },
 
