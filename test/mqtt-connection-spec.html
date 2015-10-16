@@ -86,8 +86,8 @@
       test('mqtt-connection.auto is false', function () {
         assert.isBoolean(mqttElement.auto, 'mqtt-connection.auto should be a boolean');
         assert.isFalse(mqttElement.auto);
-//        mqttElement.auto = true;
-//        assert.isTrue(mqttElement.auto);
+        mqttElement.auto = true;
+        assert.isTrue(mqttElement.auto);
       });
 
       test('mqtt-connection.clientIdPrefix is String', function () {

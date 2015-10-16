@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-subscription-spec</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../mqtt-elements.html">
+
+</head>
+<body>
+
+<test-fixture id="AutoMqttPublish">
+  <template>
+    <mqtt-connection>
+      <mqtt-publish topic="mqtt/js" payload="mqtt/elements" auto></mqtt-publish>
+    </mqtt-connection>
+  </template>
+</test-fixture>
+
+<script>
+  //  Setp 2: get the element
+  var mqttConnection;
+  var mqttPublish;
+  var sandbox;
+
+  suite('<mqtt-publish>', function () {
+    suite('mqtt-publish with stub for mqtt-publish#publish', function () {
+      setup(function () {
+        sandbox = sinon.sandbox.create();
+        sandbox.stub(MqttElements.MqttPublish.prototype, "publish");
+        mqttConnection = fixture('AutoMqttPublish');
+      });
+
+      //  Setp 3: Test the element
+      test('that mqtt-publish#publish is called once', function () {
+        sinon.assert.calledOnce(MqttElements.MqttPublish.prototype.publish);
+      });
+
+      teardown(function () {
+        sandbox.restore();
+      });
+    });
+
+    suite('mqtt-publish with stub for mqtt-connection#publish', function () {
+      setup(function () {
+        sandbox = sinon.sandbox.create();
+        sandbox.stub(MqttElements.MqttConnection.prototype, "publish");
+        mqttConnection = fixture('AutoMqttPublish');
+      });
+
+      //  Setp 3: Test the element
+      test('that mqtt-connection#publish is called once', function () {
+        sinon.assert.calledOnce(MqttElements.MqttConnection.prototype.publish);
+      });
+
+      teardown(function () {
+        sandbox.restore();
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
