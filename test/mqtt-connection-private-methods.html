@@ -8,16 +8,12 @@
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../test-fixture/test-fixture-mocha.js"></script>
 
-
-  <!-- Step 1: import the element to test -->
-
   <link rel="import" href="../../polymer/polymer.html">
   <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
   <link rel="import" href="../../test-fixture/test-fixture.html">
 
-
+  <!-- Step 1: import the element to test -->
   <link rel="import" href="../mqtt-elements.html">
-
 </head>
 <body>
 
@@ -32,7 +28,6 @@
     <mqtt-connection client-id-prefix="{{prefix}}"></mqtt-connection>
   </template>
 </test-fixture>
-
 
 <script>
   var mqttElement;
@@ -59,7 +54,6 @@
 
       test('Setting clientIdPrefix should return the prefix within the clientId', function () {
         var id = mqttElement._generateClientId();
-        console.warn("mqttElement", mqttElement.clientIdPrefix);
         assert.typeOf(id, 'string', 'mqtt-connection._generateClientId should be a String');
         expect(id).to.contain(clientIdPrefix.prefix);
       });

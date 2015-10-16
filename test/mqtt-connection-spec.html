@@ -8,20 +8,18 @@
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../test-fixture/test-fixture-mocha.js"></script>
 
-
-  <!-- Step 1: import the element to test -->
-
   <link rel="import" href="../../polymer/polymer.html">
   <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
   <link rel="import" href="../../test-fixture/test-fixture.html">
 
+  <!-- Step 1: import the element to test -->
   <link rel="import" href="../mqtt-elements.html">
 </head>
 <body>
 
 <test-fixture id="AutoConnection">
   <template>
-    <mqtt-connection auto></mqtt-connection>
+    <mqtt-connection></mqtt-connection>
   </template>
 </test-fixture>
 
@@ -37,12 +35,19 @@
   </template>
 </test-fixture>
 
+<test-fixture id="WithCredentials">
+  <template>
+    <mqtt-connection auto with-credentials></mqtt-connection>
+  </template>
+</test-fixture>
+
 
 <script>
   //  Setp 2: get the element
   var mqttElement;
   var mqttDisabledAuto;
   var mqttMaxListeners;
+  var mqttWithCredentials;
 
   suite('<mqtt-connection>', function () {
 
@@ -75,14 +80,14 @@
 
       test('mqtt-connection.auto is boolean and false', function () {
         assert.isBoolean(mqttElement.auto, 'mqtt-connection.auto should be a boolean');
-        assert.isTrue(mqttElement.auto);
+        assert.isFalse(mqttElement.auto);
       });
 
       test('mqtt-connection.auto is false', function () {
         assert.isBoolean(mqttElement.auto, 'mqtt-connection.auto should be a boolean');
-        assert.isTrue(mqttElement.auto);
-        mqttElement.auto = false;
         assert.isFalse(mqttElement.auto);
+        mqttElement.auto = true;
+        assert.isTrue(mqttElement.auto);
       });
 
       test('mqtt-connection.clientIdPrefix is String', function () {
@@ -110,7 +115,7 @@
         assert.strictEqual(mqttElement.options.keepalive, 120);
       });
 
-      test('mqtt-connection.options.clientId is a String', function () {
+      test('mqtt-connection.options.clientId should be a String', function () {
         assert.typeOf(mqttElement.options.clientId, 'string', 'mqtt-connection.options.clientId should be a string');
       });
 
@@ -126,8 +131,54 @@
         assert.typeOf(mqttElement.options.username, 'undefined', 'mqtt-connection.options.username should be undefined');
       });
 
+      test('mqtt-connection.username should be undefined', function () {
+        assert.typeOf(mqttElement.username, 'undefined', 'mqtt-connection.options.username should be undefined');
+      });
+
+      test('setting mqtt-connection.username should be reflected to mqtt-connection.options.username', function () {
+        assert.typeOf(mqttElement.username, 'undefined', 'mqtt-connection.options.username should be undefined');
+        mqttElement.username = "mqtt";
+        assert.typeOf(mqttElement.username, 'string', 'mqtt-connection.options.username should be undefined');
+        expect(mqttElement.username).to.equal("mqtt");
+        expect(mqttElement.options.username).to.equal("mqtt");
+      });
+
+      test('setting mqtt-connection.options.username should not be reflected to mqtt-connection.username', function () {
+        assert.typeOf(mqttElement.username, 'undefined', 'mqtt-connection.options.username should be undefined');
+        mqttElement.options.username = "mqtt";
+        assert.typeOf(mqttElement.options.username, 'string', 'mqtt-connection.options.username should be undefined');
+        assert.typeOf(mqttElement.username, 'undefined', 'mqtt-connection.options.username should be undefined');
+        expect(mqttElement.options.username).to.equal("mqtt");
+      });
+
       test('mqtt-connection.options.password should be undefined', function () {
         assert.typeOf(mqttElement.options.password, 'undefined', 'mqtt-connection.options.password should be undefined');
+      });
+
+      test('mqtt-connection.password should be undefined', function () {
+        assert.typeOf(mqttElement.password, 'undefined', 'mqtt-connection.options.password should be undefined');
+      });
+
+
+      test('setting mqtt-connection.password should be reflected to mqtt-connection.options.password', function () {
+        assert.typeOf(mqttElement.password, 'undefined', 'mqtt-connection.options.username should be undefined');
+        mqttElement.password = ".js";
+        assert.typeOf(mqttElement.password, 'string', 'mqtt-connection.options.username should be undefined');
+        expect(mqttElement.password).to.equal(".js");
+        expect(mqttElement.options.password).to.equal(".js");
+      });
+
+      test('setting mqtt-connection.options.password should not be reflected to mqtt-connection.password', function () {
+        assert.typeOf(mqttElement.password, 'undefined', 'mqtt-connection.options.username should be undefined');
+        mqttElement.options.password = ".js";
+        assert.typeOf(mqttElement.options.password, 'string', 'mqtt-connection.options.username should be undefined');
+        expect(mqttElement.options.password).to.equal(".js");
+        assert.typeOf(mqttElement.password, 'undefined', 'mqtt-connection.options.password should be undefined');
+      });
+
+      test('mqtt-connection.withCredentials is boolean and false by default', function () {
+        expect(mqttElement.withCredentials).to.be.a("boolean");
+        expect(mqttElement.withCredentials).to.be.false;
       });
 
       test('mqtt-connection.url is a String', function () {
@@ -135,7 +186,7 @@
       });
     });
 
-    suite('mqtt-conntection-no-auto-spec', function(){
+    suite('mqtt-conntection-no-auto-spec', function () {
       setup(function () {
         mqttDisabledAuto = fixture('NoAutoConnection');
       });
@@ -146,18 +197,35 @@
       });
     });
 
-    suite('mqtt-conntection-with-increased-max-listeners', function(){
+    suite('mqtt-conntection-with-increased-max-listeners', function () {
       setup(function () {
         mqttMaxListeners = fixture('MaxListeners');
       });
 
       test('mqtt-connection#maxListeners is number', function () {
         assert.isNumber(mqttMaxListeners.maxListeners, 'mqtt-connection.maxListeners should be a number');
-        assert.strictEqual(mqttMaxListeners.options.maxListeners, 15);
+        assert.strictEqual(mqttMaxListeners.maxListeners, 15);
         mqttMaxListeners.maxListeners = 30;
-        assert.strictEqual(mqttMaxListeners.options.maxListeners, 30);
+        assert.strictEqual(mqttMaxListeners.maxListeners, 30);
       });
     });
+
+    suite('mqtt-conntection-withCredentials', function () {
+      setup(function () {
+        mqttWithCredentials = fixture('WithCredentials');
+      });
+
+      test('mqtt-connection with with-credentials and auto will wait with connect until ' +
+          '( mqtt-connection.username || mqtt-connection.options.username ) &&' +
+          ' ( mqtt-connection.password || mqtt-connection.options.password ) is set', function () {
+        expect(mqttWithCredentials.client).to.be.undefined;
+        mqttWithCredentials.username = "mqtt";
+        expect(mqttWithCredentials.client).to.be.undefined;
+        mqttWithCredentials.password = ".js";
+        expect(mqttWithCredentials.client).to.be.an("object");
+      });
+    });
+
 
   });
 </script>

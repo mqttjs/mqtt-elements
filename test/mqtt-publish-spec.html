@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-subscription-spec</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../mqtt-elements.html">
+
+</head>
+<body>
+
+<test-fixture id="StanaloneMqttPublish">
+  <template>
+    <mqtt-publish></mqtt-publish>
+  </template>
+</test-fixture>
+
+<script>
+  //  Setp 2: get the element
+  var mqttPublish;
+
+
+  suite('<mqtt-publish>', function () {
+    suite('mqtt-publish-spec', function () {
+      setup(function () {
+        mqttPublish = fixture('StanaloneMqttPublish');
+      });
+
+      //  Setp 3: Test the element
+      test('Element is not null', function () {
+        assert.isNotNull(mqttPublish);
+        assert.notTypeOf(mqttPublish, 'undefined');
+      });
+
+      test("mqtt.property is an object that defines the attributes of mqtt-publish", function(){
+
+        expect(mqttPublish.properties).to.have.a.property("auto")
+            .that.is.an('object')
+            .that.deep.equals({type: Boolean, value: false});
+
+        expect(mqttPublish.properties).to.have.a.property("qos")
+            .that.is.an('object')
+            .that.deep.equals({type: Number, value: 0, defined: true});
+
+        expect(mqttPublish.properties).to.have.a.property("topic")
+            .that.is.an('object')
+            .that.deep.equals({type: String, defined: true});
+
+        expect(mqttPublish.properties).to.have.a.property("payload")
+            .that.is.an('object')
+            .that.deep.equals({type: Object, value: {}, defined: true});
+
+        expect(mqttPublish.properties).to.have.a.property("retained")
+            .that.is.an('object')
+            .that.deep.equals({type: Boolean, value: false, defined: true});
+
+        expect(mqttPublish.properties).to.have.a.property("published")
+            .that.is.an('object')
+            .that.deep.equals({type: Boolean, value: false, readOnly: true, defined: true});
+
+      });
+
+      test('mqttPublish.auto is boolean and false by default', function () {
+        //noinspection BadExpressionStatementJS
+        expect(mqttPublish).to.have.a.property("auto").that.is.false;
+      });
+
+      test('mqttPublish.qos is a number and 0 by default', function () {
+        //noinspection BadExpressionStatementJS
+        expect(mqttPublish).to.have.a.property("qos").that.is.equal(0);
+      });
+
+      test('mqttPublish.topic is a undefined by default', function () {
+        //noinspection BadExpressionStatementJS
+        expect(mqttPublish.toipc).to.be.an('undefined');
+      });
+
+      test('mqttPublish.payload should be an empty object by default', function () {
+        //noinspection BadExpressionStatementJS
+        expect(mqttPublish.payload).to.be.an('object').that.deep.equals({});
+      });
+
+      test('mqttPublish.retained is boolean and false by default', function () {
+        //noinspection BadExpressionStatementJS
+        expect(mqttPublish).to.have.a.property("retained").that.is.false;
+      });
+
+      test('mqttPublish.published is boolean and false by default', function () {
+        //noinspection BadExpressionStatementJS
+        expect(mqttPublish).to.have.a.property("published").that.is.false;
+      });
+
+    });
+  });
+</script>
+
+</body>
+</html>

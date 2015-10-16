@@ -32,3 +32,4 @@ chromedriver/
 
 #bower
 .bowerrc
+tmp
