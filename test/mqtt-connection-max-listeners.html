@@ -48,6 +48,8 @@
     suite('mqtt-connection-max-listeners', function () {
       setup(function () {
         mqttElement = document.querySelector("#AutoConnection");
+        sandbox = sinon.sandbox.create();
+        sandbox.stub(console, "error");
       });
 
       //  Setup 3: Test the element
@@ -55,12 +57,9 @@
           'on the same client object ', function (done) {
         mqttConnection = document.querySelector("mqtt-connection");
         otherConnections = document.querySelectorAll("div > mqtt-connection");
-        try {
-          otherConnections[0].client = mqttConnection.client;
-        } catch (error) {
-          console.log("ERROR", error);
-          done();
-        }
+        otherConnections[0].client = mqttConnection.client;
+        sinon.assert.calledTwice(console.error);
+        done();
       });
 
       //  Setup 3: Test the element
@@ -69,13 +68,16 @@
         mqttConnection = document.querySelector("mqtt-connection");
         mqttConnection.maxListeners = 12;
         otherConnections = document.querySelectorAll("div > mqtt-connection");
-        try {
-          otherConnections[0].client = mqttConnection.client;
-//          otherConnections[1].client = mqttConnection.client;
-        } catch (error) {
-          throw error;
-        }
+        otherConnections[0].client = mqttConnection.client;
+        sinon.assert.notCalled(console.error);
+        // clean up as we have to use dom-bind as template to simulate the actual use case
+        mqttConnection.disconnect();
         done();
+      });
+
+      teardown(function () {
+
+        sandbox.restore();
       });
 
     });
