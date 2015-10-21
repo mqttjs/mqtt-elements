@@ -80,7 +80,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       test('calling _handelMessage should fire a `mqtt-message` event', function (done) {
         mqttElement.addEventListener('mqtt-message', function () {
-          console.log("mqtt-message", arguments);
           done();
         });
         // Generating a test message/ packet
