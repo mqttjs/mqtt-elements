@@ -1,7 +1,7 @@
 ![mqtt-elements](https://raw.githubusercontent.com/mqttjs/mqtt-elements/67266290fe6a0b6b3ff51418efb7c1c0662c78c5/assets/mqtt-elements.png)
 =======
 
-Polymer elements to establish a MQTT connection to an MQTT broker.
+Polymer elements to establish a MQTT connection to a MQTT broker.
  
 ## API
 
@@ -10,7 +10,7 @@ Polymer elements to establish a MQTT connection to an MQTT broker.
 ## Install
 
 ```
-bower install --save mqttjs/mqtt-elements
+bower install --save mqtt-elements
 ```
 
 ## Import
@@ -22,7 +22,7 @@ bower install --save mqttjs/mqtt-elements
 ## Usage
 
 ```
-    <mqtt-connection auto url="ws://127.0.0.1:3005">
+    <mqtt-connection auto url="ws://HOST:PORT">
         <mqtt-subscription
             topic="foo/bar"
             number-of-messages="Infinity"
@@ -37,6 +37,99 @@ bower install --save mqttjs/mqtt-elements
             qos="1"></mqtt-publish>        
     </mqtt-connection>
 ```
+
+### Connect 
+
+```
+<mqtt-connection url="ws://HOST:PORT"></mqtt-connection>
+```
+
+The method `<mqtt-connection>#connect` has to be called manually to establish the MQTT connection to the MQTT broker. 
+Set `<mqtt-connection>#auto` flag to make the MQTT connection as soon as possible.   
+
+
+### Connect with Username / Password
+
+```
+    <mqtt-connection
+        url="ws://HOST:PORT"
+        options='{"username": "USERNAME", "password": "PASSWORD"}'
+        with-credentials
+        auto>
+    </mqtt-connection>
+```
+
+OR
+
+```
+    <mqtt-connection
+        url="ws://HOST:PORT"
+        username="USERNAME"
+        password="PASSWORD"
+        with-credentials
+        auto>
+    </mqtt-connection>
+```
+
+The flag `<mqtt-connection>#withCredentials` indecates the MQTT connection to wait until a username and password for 
+the connection is supplied.
+
+### Publish
+
+The following example will publish on the topic »mqtt/elements« with the payload »Publishing via a HTML element«.
+Every time when `<mqtt-publish>#payload` changes the element will publish a new MQTT message to the topic »mqtt/elements«.
+If the `<mqtt-publish>#auto` flag is not set - `<mqtt-publish>#publish` has to be called to publish a MQTT message to the topic 
+
+```
+<mqtt-connection
+    url="ws://HOST:PORT"
+    auto>
+  <mqtt-publish topic="mqtt/elements" payload="Publishing via a HTML element" auto></mqtt-publish>
+</mqtt-connection>
+```
+
+#### Publish on multiple topic
+
+A `<mqtt-connection>` element can hold any number of `<mqtt-publish>` elements to publish to different topics.
+ 
+```
+<mqtt-connection
+    url="ws://HOST:PORT"
+    auto>
+  <mqtt-publish topic="foo/bar" payload="this is easy" auto></mqtt-publish>
+  <mqtt-publish topic="client/status" payload="online" qos="1" auto></mqtt-publish>
+  <mqtt-publish topic="client/location" payload="{'foo': 'bar'}" auto></mqtt-publish>
+</mqtt-connection>
+```
+
+#### Publish a retained message
+
+To publish a message with the RETAINED flag set to true add the `<mqtt-publish>#retained` flag.
+
+```
+<mqtt-connection
+    url="ws://HOST:PORT"
+    auto>
+    <mqtt-publish topic="foo/bar" payload="this is easy" retained auto></mqtt-publish>
+</mqtt-connection>
+```
+
+### Subscribe
+
+```
+ <mqtt-connection
+     url="ws://HOST:PORT"
+     auto>
+   <mqtt-subscription topic="foo/bar"></mqtt-subscription>
+ </mqtt-connection>
+```
+
+The last message to the topic will be save in `<mqtt-subscription>#lastMessage`. The `<mqtt-subscription>` stores the 
+last `n` messages within the `<mqtt-subscription>#messages` array. Set `<mqtt-subscription>#numberOfMessages` to the 
+number of messages that should be saved in `<mqtt-subscription>#messages`. To save every message received on the topic 
+set `<mqtt-subscription>#numberOfMessages` to `Infinity`.       
+
+ 
 
 ## Development
  
