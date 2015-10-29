@@ -1,0 +1,264 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-subscription-spec</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../mqtt-elements.html">
+
+</head>
+<body>
+
+<test-fixture id="MqttConnection">
+  <template>
+    <mqtt-connection url="ws://localhost:3005">
+    </mqtt-connection>
+  </template>
+</test-fixture>
+
+<test-fixture id="MqttConnectionWithSubscription">
+  <template>
+    <mqtt-connection url="ws://localhost:3005">
+      <mqtt-subscription topic="foo/bar" qos="0"></mqtt-subscription>
+    </mqtt-connection>
+  </template>
+</test-fixture>
+
+<test-fixture id="MqttConnectionWithSubscriptionQos1">
+  <template>
+    <mqtt-connection url="ws://localhost:3005">
+      <mqtt-subscription topic="foo/bar" qos="1"></mqtt-subscription>
+    </mqtt-connection>
+  </template>
+</test-fixture>
+
+<test-fixture id="MqttConnectionWithPublish">
+  <template>
+    <mqtt-connection url="ws://localhost:3005">
+      <mqtt-subscription topic="foo/bar/retained"></mqtt-subscription>
+      <mqtt-publish auto topic="foo/bar/retained" payload="mqtt-elements" retained></mqtt-publish>
+    </mqtt-connection>
+  </template>
+</test-fixture>
+
+<test-fixture id="MqttConnectionWithPublishAuto">
+  <template>
+    <mqtt-connection url="ws://localhost:3005" auto>
+      <mqtt-publish auto topic="foo/bar" payload="mqtt-elements"></mqtt-publish>
+    </mqtt-connection>
+  </template>
+</test-fixture>
+
+
+<script>
+  //  Setp 2: get the element
+  var mqttConnection;
+
+  suite('<mqtt-elements>', function () {
+    suite('<mqtt-connection>', function () {
+      setup(function () {
+        mqttConnection = fixture('MqttConnection');
+      });
+
+      test('calling connect establishes a connection to the broker and fires mqtt-connection-connected event with ' +
+          'status connected', function (done) {
+        mqttConnection.addEventListener("mqtt-connection-connected", function (event) {
+          expect(event.detail.value).to.be.true;
+          done();
+        });
+
+        mqttConnection.connect();
+      });
+
+      test('calling connect establishes a connection to the broker and fires mqtt-connection-connected event with ' +
+          'status connected after that calling disconnect fires  ', function (done) {
+
+        mqttConnection.addEventListener("mqtt-connection-connected", function (event) {
+
+          expect(event.detail.value).to.be.true;
+
+          mqttConnection.addEventListener("mqtt-connection-close", function (closeEvent) {
+            done();
+          });
+
+          mqttConnection.disconnect();
+        });
+
+        mqttConnection.connect();
+      });
+
+    });
+
+
+    suite('<mqtt-subscription>', function () {
+      var sub;
+      setup(function () {
+        mqttConnection = fixture('MqttConnectionWithSubscription');
+        sub = mqttConnection.querySelector("mqtt-subscription");
+      });
+
+      test('mqtt-subscription is subscribed', function (done) {
+        sub.addEventListener("mqtt-subscription-subscribed", function (event) {
+          expect(event.detail.topic).to.equal("foo/bar");
+          expect(event.detail.qos).to.equal(0);
+          expect(event.type).to.equal("mqtt-subscription-subscribed");
+          done();
+        });
+        mqttConnection.connect();
+      });
+
+      test('mqtt-subscription is subscribed', function (done) {
+        sub.addEventListener("mqtt-subscription-subscribed", function (event) {
+          expect(event.detail.topic).to.equal("foo/bar");
+          expect(event.detail.qos).to.equal(0);
+          expect(event.type).to.equal("mqtt-subscription-subscribed");
+          sub.addEventListener("mqtt-subscription-unsubscribed", function (remEvent) {
+            done();
+          });
+
+          sub.remove();
+        });
+        mqttConnection.connect();
+      });
+
+
+      test('mqtt-subscription is subscribed', function (done) {
+        sub.addEventListener("mqtt-subscription-subscribed", function (event) {
+          expect(event.detail.topic).to.equal("foo/bar");
+          expect(event.detail.qos).to.equal(0);
+          expect(event.type).to.equal("mqtt-subscription-subscribed");
+          sub.addEventListener("last-message-changed", function (lastMessage) {
+            expect(lastMessage.detail.value.topic).to.equal("foo/bar");
+            expect(lastMessage.detail.value.parsedPayload).to.equal("mqtt-elements");
+            expect(sub.messages.length).to.equal(1);
+            expect(sub.messages[0]).to.deep.equal(lastMessage.detail.value);
+            done();
+          });
+
+          mqttConnection.publish("foo/bar", "mqtt-elements");
+        });
+        mqttConnection.connect();
+      });
+
+      test('mqtt-subscription is subscribed with qos 0', function (done) {
+        sub.addEventListener("mqtt-subscription-subscribed", function (event) {
+          expect(event.detail.topic).to.equal("foo/bar");
+          expect(event.detail.qos).to.equal(0);
+          expect(event.type).to.equal("mqtt-subscription-subscribed");
+          sub.addEventListener("last-message-changed", function (lastMessage) {
+            expect(lastMessage.detail.value.topic).to.equal("foo/bar");
+            expect(lastMessage.detail.value.parsedPayload).to.equal("mqtt-elements");
+            expect(sub.messages.length).to.equal(1);
+            expect(sub.messages[0]).to.deep.equal(lastMessage.detail.value);
+            done();
+          });
+
+          mqttConnection.publish("foo/bar", "mqtt-elements", 1);
+        });
+        mqttConnection.connect();
+      });
+
+    });
+
+    suite('<mqtt-subscription> qos 1', function () {
+      var sub;
+      setup(function () {
+        mqttConnection = fixture('MqttConnectionWithSubscriptionQos1');
+        sub = mqttConnection.querySelector("mqtt-subscription");
+      });
+
+      test('mqtt-subscription is subscribed with qos 1', function (done) {
+        sub.addEventListener("mqtt-subscription-subscribed", function (event) {
+          expect(event.detail.topic).to.equal("foo/bar");
+          expect(event.detail.qos).to.equal(1);
+          expect(event.type).to.equal("mqtt-subscription-subscribed");
+          sub.addEventListener("last-message-changed", function (lastMessage) {
+            expect(lastMessage.detail.value.topic).to.equal("foo/bar");
+            expect(lastMessage.detail.value.parsedPayload).to.equal("mqtt-elements");
+            expect(sub.messages.length).to.equal(1);
+            expect(sub.messages[0]).to.deep.equal(lastMessage.detail.value);
+            done();
+          });
+
+          mqttConnection.publish("foo/bar", "mqtt-elements", 1);
+        });
+        mqttConnection.connect();
+      });
+
+      test('mqtt-subscription is subscribed with qos 1 but publish with 0', function (done) {
+        sub.addEventListener("mqtt-subscription-subscribed", function (event) {
+          expect(event.detail.topic).to.equal("foo/bar");
+          expect(event.detail.qos).to.equal(1);
+          expect(event.type).to.equal("mqtt-subscription-subscribed");
+          sub.addEventListener("last-message-changed", function (lastMessage) {
+            expect(lastMessage.detail.value.topic).to.equal("foo/bar");
+            expect(lastMessage.detail.value.parsedPayload).to.equal("mqtt-elements");
+            expect(sub.messages.length).to.equal(1);
+            expect(sub.messages[0]).to.deep.equal(lastMessage.detail.value);
+            done();
+          });
+
+          mqttConnection.publish("foo/bar", "mqtt-elements", 0);
+        });
+        mqttConnection.connect();
+      });
+    });
+
+    suite('<mqtt-subscription> <mqtt-publish>#auto & #retained ', function () {
+      var pub;
+      var sub;
+      setup(function () {
+        mqttConnection = fixture('MqttConnectionWithPublish');
+        pub = mqttConnection.querySelector("mqtt-publish");
+        sub = mqttConnection.querySelector("mqtt-subscription");
+      });
+
+      test('mqtt-subscription receives mqtt message from retained publish that has been made before the connection ' +
+          'was connected', function (done) {
+
+        mqttConnection.addEventListener("mqtt-message", function (event) {
+          expect(event.detail.topic).to.equal("foo/bar/retained");
+          expect(sub.subscribed).to.be.true;
+          expect(pub.published).to.be.true;
+          expect(String.fromCharCode.apply(null, event.detail.message)).to.equal("mqtt-elements");
+          done();
+        });
+
+        mqttConnection.connect();
+      });
+
+    });
+
+    suite('<mqtt-publish>#auto and <mqtt-connection>#auto', function () {
+      var pub;
+      setup(function () {
+        mqttConnection = fixture('MqttConnectionWithPublishAuto');
+        pub = mqttConnection.querySelector("mqtt-publish");
+      });
+
+      test('mqtt-publish will be automatically made when the connection loads', function (done) {
+        pub.addEventListener("mqtt-publication-published", function (event) {
+          expect(event.detail.topic).to.equal("foo/bar");
+          expect(pub.published).to.be.true;
+          expect(event.detail.payload).to.equal("mqtt-elements");
+          done();
+        });
+
+      });
+
+    });
+
+  });
+</script>
+
+</body>
+</html>
