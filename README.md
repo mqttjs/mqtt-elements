@@ -144,15 +144,10 @@ grunt serve
 ```
 
 
-#### Update annd bundel MQTT.js
+#### Bundel MQTT.js, MQEmitter and Store
 
 ```
- browserify node_modules/mqtt/mqtt.js -o dist/mqtt.js
+browserify -r ./node_modules/mqtt/lib/store.js:Store -r mqtt -r MQEmitter > mqtt-elements-bundel.js
 
 ```
 
-#### Update and bundel mqemitter
-```
- browserify node_modules/mqemitter/mqemitter.js --standalone MQEmitter -o dist/mqemitter.js 
- 
-```
