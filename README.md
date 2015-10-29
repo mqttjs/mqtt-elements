@@ -147,7 +147,7 @@ grunt serve
 #### Bundel MQTT.js, MQEmitter and Store
 
 ```
-browserify -r ./node_modules/mqtt/lib/store.js:Store -r mqtt -r MQEmitter > mqtt-elements-bundel.js
+browserify -r ./node_modules/mqtt/lib/store.js:Store -r mqtt -r MQEmitter > dist/mqtt-elements-bundle.js
 
 ```
 
