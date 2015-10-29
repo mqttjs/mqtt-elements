@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="mqttjs.html">
-<link rel="import" href="mqemitter.html">
 
 <!--
 The `<mqtt-connection>` element exposes MQTT connection functionality to the web.
@@ -47,7 +46,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       /**
        * Fired when a connection is connected.
        *
-       * @event mqtt-connection-connected
+       * @mqtt-subscription-unregister mqtt-connection-connected
        */
 
       /**
@@ -152,7 +151,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
           notify: true,
           readOnly: true,
           value: function () {
-            return new MQEmitter();
+            return require("MQEmitter")();
           },
         },
 
@@ -252,6 +251,13 @@ element. And manually connect if `auto` is set to `false` with `connect`
           type: Boolean,
           readOnly: false,
           value: false,
+        },
+
+        packetQueue: {
+          type: Array,
+          value: function(){
+            return [];
+          }
         }
 
       },
@@ -339,6 +345,21 @@ element. And manually connect if `auto` is set to `false` with `connect`
         if(this.client) {
           // actually send the `publish` message to the MQTT broker
           this.client.publish(topic, message, opts, opt_callback);
+        } else {
+          var nop = function () {};
+          var queuePacket = {
+            cb: opt_callback || nop,
+            packet: {
+              cmd: 'publish',
+              topic: topic,
+              payload: message,
+              qos: opt_qos || 0,
+              retain: opt_retained || false,
+              messageId: 1
+            }
+          };
+
+          this.push("packetQueue", queuePacket);
         }
       },
 
@@ -405,8 +426,10 @@ element. And manually connect if `auto` is set to `false` with `connect`
        * @private
        */
       _createClient: function () {
+        // require mqtt from bundled browserified dependencies
+        var mqtt = require("mqtt");
         if(mqtt) {
-          this._createClientDebounce();
+          this._createClientDebounce(mqtt);
 //          return this.debounce('_createClient', this._createClientDebounce());
         } else {
           // failed to load mqtt.js
@@ -416,8 +439,10 @@ element. And manually connect if `auto` is set to `false` with `connect`
         }
       },
 
-      _createClientDebounce: function(){
+      _createClientDebounce: function(mqtt){
         this.set("options.clientId", this._generateClientId());
+        this.options["queue"] = this.packetQueue;
+
         this.client = mqtt.connect(this.url, this.options);
         this.client.setMaxListeners(this.maxListeners);
       },
@@ -676,7 +701,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
         var sub = event.detail.target;
         if(sub) {
           if(sub.topic && this.client) {
-            this.client.unsubscribe(sub.topic);
+            this.client.unsubscribe(sub.topic, sub._handelSubscriptionUnsubscribed.bind(sub));
             this._removeSubFromEmmitter(sub);
           }
           this._unregisterElement("subscriptions", sub);

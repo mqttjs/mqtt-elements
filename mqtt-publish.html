@@ -124,7 +124,7 @@ publishes a retained message to the topic "foo/bar".
       publish: function () {
         if(this.topic && this.topic.length > 0 && this.payload && this.payload.length > 0 && this._parentConnection) {
           this._setPublished(false);
-          this._parentConnection.publish(this.topic, this.payload, this.qos, this.retained);
+          this._parentConnection.publish(this.topic, this.payload, this.qos, this.retained, this._handelPublicationPublished.bind(this));
         }
       },
 
