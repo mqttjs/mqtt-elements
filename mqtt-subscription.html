@@ -268,7 +268,10 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
         }
         this.push("messages", message);
 
+        //noinspection JSUnresolvedFunction
         this._setLastMessage(message);
+
+        this.fire("mqtt-subscription-message", message);
       },
 
       /**

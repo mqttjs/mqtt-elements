@@ -58,6 +58,14 @@
   </template>
 </test-fixture>
 
+<test-fixture id="MqttConnectionSubscriptionToStore10Messages">
+  <template>
+    <mqtt-connection url="ws://localhost:3005" auto>
+      <mqtt-subscription topic="foo/bar/multi" number-of-messages="15"></mqtt-subscription>
+      <mqtt-publish auto topic="foo/bar/multi"></mqtt-publish>
+    </mqtt-connection>
+  </template>
+</test-fixture>
 
 <script>
   //  Setp 2: get the element
@@ -235,7 +243,6 @@
 
         mqttConnection.connect();
       });
-
     });
 
     suite('<mqtt-publish>#auto and <mqtt-connection>#auto', function () {
@@ -252,9 +259,37 @@
           expect(event.detail.payload).to.equal("mqtt-elements");
           done();
         });
-
+      });
+    });
+    suite('<mqtt-publish>#auto and <mqtt-subscription>#numOfMessages=15', function () {
+      var pub;
+      setup(function () {
+        mqttConnection = fixture('MqttConnectionSubscriptionToStore10Messages');
+        sub = mqttConnection.querySelector("mqtt-subscription");
+        pub = mqttConnection.querySelector("mqtt-publish");
       });
 
+      test('<mqtt-publish> automatically publish on changes to payload and <mqtt-subscription> will store 15 messages', function (done) {
+        var messages = [];
+        var testLength = 17;
+        sub.addEventListener("mqtt-subscription-message", function (event) {
+          messages.push(event.detail);
+          if (messages.length >= testLength) {
+            expect(sub.messages.length).to.equal(15);
+            for (var j = 2; j < testLength; j++){
+              expect(messages[j]).to.equal(sub.messages[j-2]);
+            }
+            done();
+          }
+        });
+
+        sub.addEventListener("mqtt-subscription-subscribed", function (event) {
+          // sending 2 more messages that will be discarded from the <mqtt-subscription>
+          for (var i = 0; i < testLength; i++){
+            pub.payload = i+"";
+          }
+        });
+      });
     });
 
   });
