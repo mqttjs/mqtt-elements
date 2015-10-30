@@ -127,9 +127,11 @@ To publish a message with the RETAINED flag set to true add the `<mqtt-publish>#
 The last message to the topic will be save in `<mqtt-subscription>#lastMessage`. The `<mqtt-subscription>` stores the 
 last `n` messages within the `<mqtt-subscription>#messages` array. Set `<mqtt-subscription>#numberOfMessages` to the 
 number of messages that should be saved in `<mqtt-subscription>#messages`. To save every message received on the topic 
-set `<mqtt-subscription>#numberOfMessages` to `Infinity`.       
-
- 
+set `<mqtt-subscription>#numberOfMessages` to `Infinity`. 
+      
+## Media
+    
+* [MQTT Client Library Encyclopedia](http://www.hivemq.com/blog/mqtt-client-library-encyclopedia-mqttelements?utm_medium=social&utm_source=github-mqttjs)
 
 ## Development
  
@@ -147,7 +149,7 @@ grunt serve
 #### Bundel MQTT.js, MQEmitter and Store
 
 ```
-browserify -r ./node_modules/mqtt/lib/store.js:Store -r mqtt -r MQEmitter > mqtt-elements-bundel.js
+browserify -r ./node_modules/mqtt/lib/store.js:Store -r mqtt -r MQEmitter > dist/mqtt-elements-bundle.js
 
 ```
 
