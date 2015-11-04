@@ -41,6 +41,12 @@
   </template>
 </test-fixture>
 
+<test-fixture id="WithCredentialsNoAuto">
+  <template>
+    <mqtt-connection with-credentials></mqtt-connection>
+  </template>
+</test-fixture>
+
 
 <script>
   //  Setp 2: get the element
@@ -225,6 +231,34 @@
         expect(mqttWithCredentials.client).to.be.an("object");
       });
     });
+
+    suite('mqtt-conntection-withCredentials and noAuto', function () {
+      setup(function () {
+        mqttWithCredentials = fixture('WithCredentialsNoAuto');
+      });
+
+      test('mqtt-connection with with-credentials and no auto will wait with connect until ' +
+          '( mqtt-connection.username || mqtt-connection.options.username ) &&' +
+          ' ( mqtt-connection.password || mqtt-connection.options.password ) is set and auto is set to true', function (done) {
+
+        mqttWithCredentials.addEventListener("mqtt-connection-offline",function(){
+          expect(mqttWithCredentials.client).to.be.an("object");
+          done();
+        });
+
+        expect(mqttWithCredentials.client).to.be.undefined;
+        mqttWithCredentials.username = "mqtt";
+        expect(mqttWithCredentials.client).to.be.undefined;
+        mqttWithCredentials.password = ".js";
+        expect(mqttWithCredentials.client).to.be.undefined;
+
+        mqttWithCredentials.auto = true;
+
+      });
+    });
+
+
+
 
 
   });

@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="mqttjs.html">
-<link rel="import" href="mqemitter.html">
 
 <!--
 The `<mqtt-connection>` element exposes MQTT connection functionality to the web.
@@ -47,7 +46,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       /**
        * Fired when a connection is connected.
        *
-       * @event mqtt-connection-connected
+       * @mqtt-subscription-unregister mqtt-connection-connected
        */
 
       /**
@@ -77,12 +76,15 @@ element. And manually connect if `auto` is set to `false` with `connect`
       properties: {
 
         /**
-         * Set to `true` to automatically create and connect the mqtt connection.
+         * When injecting the client object into different `<mqtt-connection>` element, each element will register to
+         * listen for changes/ messages in the connection. To detect memory leaks the the `EventEmitter` raises an error
+         * when more than `EventEmitter.maxListeners` (default 10) are registering to the client.
+         *
          */
-        auto: {
-          type: Boolean,
-          readOnly: false,
-          value: false,
+        maxListeners: {
+          type: Number,
+          value: 10,
+          observer: "_maxListenersChanged"
         },
 
         /**
@@ -149,7 +151,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
           notify: true,
           readOnly: true,
           value: function () {
-            return new MQEmitter();
+            return require("MQEmitter")();
           },
         },
 
@@ -200,12 +202,6 @@ element. And manually connect if `auto` is set to `false` with `connect`
           observer: "_passwordChanged"
         },
 
-        withCredentials: {
-          type: Boolean,
-          readOnly: false,
-          notify: true,
-          value: false,
-        },
 
         /**
          * An array of all `<mqtt-publish>` elements that are placed within this `<mqtt-connection>` element.
@@ -241,22 +237,34 @@ element. And manually connect if `auto` is set to `false` with `connect`
           value: '',
         },
 
+        withCredentials: {
+          type: Boolean,
+          readOnly: false,
+          notify: true,
+          value: false,
+        },
+
         /**
-         * When injecting the client object into different `<mqtt-connection>` element, each element will register to
-         * listen for changes/ messages in the connection. To detect memory leaks the the `EventEmitter` raises an error
-         * when more than `EventEmitter.maxListeners` (default 10) are registering to the client.
-         *
+         * Set to `true` to automatically create and connect the mqtt connection.
          */
-        maxListeners: {
-          type: Number,
-          value: 10,
-          observer: "_maxListenersChanged"
+        auto: {
+          type: Boolean,
+          readOnly: false,
+          value: false,
+        },
+
+        packetQueue: {
+          type: Array,
+          value: function(){
+            return [];
+          }
         }
 
       },
 
       observers: [
-        '_usernameOrPasswordChanged(username, options.username, password, options.password)'
+        '_usernameOrPasswordChanged(username, options.username, password, options.password, withCredentials, auto)',
+        '_autoChanged(auto, withCredentials)'
       ],
 
       listeners: {
@@ -267,7 +275,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
       },
 
       attached: function () {
-        if(this.auto && !this.withCredentials) {
+        if(!this.client && this.auto && !this.withCredentials) {
           this.connect();
         }
       },
@@ -280,7 +288,16 @@ element. And manually connect if `auto` is set to `false` with `connect`
         this.set("options.password", password);
       },
 
-      _usernameOrPasswordChanged: function (username, optUsername, password, optPassword) {
+      _autoChanged: function(auto, withCredentials){
+        if (!this.client && auto && !withCredentials){
+          this.connect();
+        }
+      },
+
+      _usernameOrPasswordChanged: function (username, optUsername, password, optPassword, withCredentials, auto) {
+        if (!this.client && auto && ( !withCredentials || ( withCredentials && ( username || optUsername )  && (password || optPassword )))){
+          this.connect()
+        }
       },
 
       _maxListenersChanged: function (maxListeners, old) {
@@ -328,6 +345,21 @@ element. And manually connect if `auto` is set to `false` with `connect`
         if(this.client) {
           // actually send the `publish` message to the MQTT broker
           this.client.publish(topic, message, opts, opt_callback);
+        } else {
+          var nop = function () {};
+          var queuePacket = {
+            cb: opt_callback || nop,
+            packet: {
+              cmd: 'publish',
+              topic: topic,
+              payload: message,
+              qos: opt_qos || 0,
+              retain: opt_retained || false,
+              messageId: 1
+            }
+          };
+
+          this.push("packetQueue", queuePacket);
         }
       },
 
@@ -394,16 +426,25 @@ element. And manually connect if `auto` is set to `false` with `connect`
        * @private
        */
       _createClient: function () {
+        // require mqtt from bundled browserified dependencies
+        var mqtt = require("mqtt");
         if(mqtt) {
-          this.options.clientId = this._generateClientId();
-          this.client = mqtt.connect(this.url, this.options);
-          this.client.setMaxListeners(this.maxListeners);
+          this._createClientDebounce(mqtt);
+//          return this.debounce('_createClient', this._createClientDebounce());
         } else {
           // failed to load mqtt.js
           // TODO SKO tell the user about this and maybe log environment
           this.fire("mqtt-connection-error", "<mqtt-connection> element could not load MQTT.js, pleas check your setup");
           console.error("<mqtt-connection> element could not load MQTT.js, pleas check your setup");
         }
+      },
+
+      _createClientDebounce: function(mqtt){
+        this.set("options.clientId", this._generateClientId());
+        this.options["queue"] = this.packetQueue;
+
+        this.client = mqtt.connect(this.url, this.options);
+        this.client.setMaxListeners(this.maxListeners);
       },
 
       /**
@@ -660,7 +701,7 @@ element. And manually connect if `auto` is set to `false` with `connect`
         var sub = event.detail.target;
         if(sub) {
           if(sub.topic && this.client) {
-            this.client.unsubscribe(sub.topic);
+            this.client.unsubscribe(sub.topic, sub._handelSubscriptionUnsubscribed.bind(sub));
             this._removeSubFromEmmitter(sub);
           }
           this._unregisterElement("subscriptions", sub);
