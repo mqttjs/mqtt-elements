@@ -65,10 +65,12 @@
                              alt="show options"
                              title="show options"></paper-icon-button>
         </div>
-        <div hidden$="{{!showOptions}}" class="horizontal-section-container">
+        <div hidden$="{{!showOptions}}" class="horizontal-section-container settings">
           <h3>Credentials</h3>
           <paper-input label="username" value="{{username}}"></paper-input>
           <paper-input label="password" value="{{password}}"></paper-input>
+          <h3>Client ID</h3>
+          <paper-input label="Client ID" value="{{clientId}}"></paper-input>
         </div>
       </div>
 
@@ -185,7 +187,7 @@
 
         options: {
           type: Object,
-          computed: "_computeOptions(username, password)",
+          computed: "_computeOptions(username, password, clientId)",
         },
 
         username: {
@@ -195,11 +197,15 @@
         password: {
           type: String,
         },
+
+        clientId: {
+          type: String,
+        }
       },
 
       observers: [],
 
-      _computeOptions: function (username, password) {
+      _computeOptions: function (username, password, clientId) {
         var _options = {
           protocolId: "MQTT",
           protocolVersion: 4,
@@ -212,6 +218,10 @@
         if(username && username.length > 0 && password && password.length > 0) {
           _options.username = username;
           _options.password = password;
+        }
+
+        if(clientId && clientId.length > 0){
+          _options.clientId = clientId;
         }
 
         return _options;
