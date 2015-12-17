@@ -1,6 +1,6 @@
 {
   "name": "mqtt-elements",
-  "version": "0.0.4-beta",
+  "version": "0.0.5-beta",
   "description": "Polymer elements for MQTT",
   "main": "mqtt-elements.html",
   "directories": {

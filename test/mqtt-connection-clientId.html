@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>mqtt-message-spec</title>
+
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
+
+  <!-- Step 1: import the element to test -->
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
+
+  <link rel="import" href="../mqtt-elements.html">
+
+</head>
+<body>
+
+<test-fixture id="clientId">
+  <template>
+    <mqtt-connection>
+    </mqtt-connection>
+  </template>
+</test-fixture>
+
+
+<script>
+  var mqttConnection;
+
+  suite('<mqtt-connection>', function () {
+    suite('mqtt-connection-clientId', function () {
+      setup(function () {
+        mqttConnection = fixture('clientId');
+        mqttConnection.options.clientId = "mqtt_elements";
+      });
+
+
+      test('mqtt-connection that has a static clientId', function () {
+        expect(mqttConnection.options.clientId).to.equal("mqtt_elements");
+        mqttConnection.connect();
+        expect(mqttConnection.options.clientId).to.equal("mqtt_elements");
+      });
+
+    });
+  });
+</script>
+
+</body>
+</html>
