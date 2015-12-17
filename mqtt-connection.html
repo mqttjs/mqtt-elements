@@ -440,7 +440,6 @@ element. And manually connect if `auto` is set to `false` with `connect`
       },
 
       _createClientDebounce: function(mqtt){
-        console.log("_createClientDebounce", this.options);
         if (this.options.clientId && this.options.clientId.length == 0){
           this.set("options.clientId", this._generateClientId());
         }
