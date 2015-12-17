@@ -1,6 +1,6 @@
 {
   "name": "mqtt-elements",
-  "version": "0.0.3-beta",
+  "version": "0.0.5-beta",
   "homepage": "https://github.com/mqttjs/mqtt-elements",
   "description": "Polymer elements for MQTT",
   "main": "mqtt-elements.html",
@@ -21,7 +21,7 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "~1.1.4"
+    "polymer": "~1.2.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#~1.0.5",

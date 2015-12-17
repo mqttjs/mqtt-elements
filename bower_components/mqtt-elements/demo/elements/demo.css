@@ -112,3 +112,7 @@ tbody tr:nth-child(odd) {
     max-width: 800px;
 }
 
+
+.settings > h3 {
+    margin-bottom: 0;
+}

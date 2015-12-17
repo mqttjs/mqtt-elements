@@ -26,9 +26,9 @@ documentation page including demos (if available).
   <link rel="import" type="css" href="iron-component-page.css">
   <template>
     <hydrolysis-analyzer id="analyzer" src="[[_srcUrl]]" transitive="[[transitive]]" clean analyzer="{{_hydroDesc}}" loading="{{_hydroLoading}}"></hydrolysis-analyzer>
-    <iron-ajax id="ajax" url="[[docSrc]]" handle-as="json" on-response="_handleAjaxResponse"></iron-ajax>
+    <iron-ajax id="ajax" url="[[docSrc]]" handle-as="json" on-response="_handleAjaxResponse" on-error="_handleError"></iron-ajax>
 
-    <paper-header-panel id="headerPanel" mode="waterfall">
+    <paper-header-panel id="headerPanel" mode="[[scrollMode]]">
       <paper-toolbar catalog-hidden>
         <div class="flex">
           <!-- TODO: Replace with paper-dropdown-menu when available -->
@@ -188,6 +188,15 @@ documentation page including demos (if available).
       },
 
       /**
+       * The scroll mode for the page. For details about the modes,
+       * see the mode property in paper-header-panel.
+       */
+      scrollMode: {
+        type: String,
+        value: 'waterfall'
+      },
+
+      /**
        * The currently displayed element.
        *
        * @type {!hydrolysis.ElementDescriptor}
@@ -340,13 +349,21 @@ documentation page including demos (if available).
     },
 
     _getDefaultActive: function() {
-      function findMatch(el) {
-        return el && el.contentHref && el.contentHref.indexOf(mainFile) > 0;
-      }
-
+      var matchedPage;
       var url = this._srcUrl || this.base;
       var mainFile = url.replace(_baseUrl(this.base), '');
-      var matchedPage = this.docElements.find(findMatch) || this.docBehaviors.find(findMatch);
+
+      function findMatch(list) {
+        for (var item, i = 0; i < list.length; i++) {
+          item = list[i];
+          if (item && item.contentHref && item.contentHref.indexOf(mainFile) > 0) {
+            return item;
+          }
+        }
+        return null;
+      }
+      
+      matchedPage = findMatch(this.docElements) || findMatch(this.docBehaviors);
 
       if (matchedPage) {
         return matchedPage.is;
@@ -436,6 +453,10 @@ documentation page including demos (if available).
       this._ajaxLoading = false;
       this._ajaxLastUrl = req.url;
       this._ajaxDesc = req.response;
+    },
+
+    _handleError: function(e) {
+      this.fire('iron-component-page-error', e.detail);
     },
 
     _handleComponentSelectedEvent: function(ev) {
