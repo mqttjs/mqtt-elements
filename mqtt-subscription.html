@@ -209,8 +209,7 @@ be bound to `lastMessage`. `subscribed` indicates whether the subscription is su
             // don't do anything user has to supply a payloadParseFunction
             break;
           case "Unknown":
-            this.payloadParseFunction = function () {
-            };
+            this.payloadParseFunction = function () {};
             break;
           case "String":
             this.payloadParseFunction = String.fromCharCode;
