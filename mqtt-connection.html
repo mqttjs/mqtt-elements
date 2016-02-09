@@ -262,6 +262,8 @@ element. And manually connect if `auto` is set to `false` with `connect`
 
       },
 
+      _createdConnection: false,
+
       observers: [
         '_usernameOrPasswordChanged(username, options.username, password, options.password, withCredentials, auto)',
         '_autoChanged(auto, withCredentials)'
@@ -277,6 +279,12 @@ element. And manually connect if `auto` is set to `false` with `connect`
       attached: function () {
         if(!this.client && this.auto && !this.withCredentials) {
           this.connect();
+        }
+      },
+
+      detached: function () {
+        if (this._createdConnection && this.client){
+          this.disconnect();
         }
       },
 
@@ -443,10 +451,13 @@ element. And manually connect if `auto` is set to `false` with `connect`
         if (this.options.clientId && this.options.clientId.length == 0){
           this.set("options.clientId", this._generateClientId());
         }
+
         this.options["queue"] = this.packetQueue;
 
         this.client = mqtt.connect(this.url, this.options);
         this.client.setMaxListeners(this.maxListeners);
+
+        this._createdConnection = true;
       },
 
       /**
