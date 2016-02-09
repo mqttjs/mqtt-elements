@@ -1,0 +1,19 @@
+{
+  "verbose": true,
+  "plugins": {
+    "istanbul": {
+      "dir": "./coverage",
+      "reporters": ["text-summary", "lcov", "html"],
+      "include": [
+        "**/*.js"
+      ],
+      "exclude": [
+        "/polymer/polymer.js",
+        "/platform/platform.js",
+        "/bower_components/**/*.js",
+        "/bower_components/**/*.html",
+        "/demo/**/*.html"
+      ]
+    }
+  }
+}

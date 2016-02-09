@@ -1,0 +1,70 @@
+<link rel="import" href="../../../polymer/polymer.html">
+
+<link rel="import" href="../../../paper-styles/demo-pages.html">
+
+<dom-module id="mqtt-subscription-view">
+
+  <link rel="import" type="css" href="demo.css">
+
+  <template>
+    <style>
+      :host {
+        box-sizing: border-box;
+      }
+    </style>
+
+    <div>lastMessage: <span>[[model.lastMessage]]</span></div>
+    <div class="vertical-section">
+      <div>
+        <div class="sub-header">
+          <h2 class="title">Subscribed to - <span>[[model.topic]]</span></h2>
+          <h3 class="qos">QoS: <span>[[model.qos]]</span></h3>
+          <paper-icon-button on-tap="_removeSubscription"
+                             icon="icons:delete"
+                             alt="remove"
+                             title="remove subscription"></paper-icon-button>
+        </div>
+        <table>
+          <thead>
+          <tr>
+            <th colspan="3">Messages</th>
+          </tr>
+          <tr>
+            <th>Topic</th>
+            <th>QoS</th>
+            <th class="full">Payload</th>
+          </tr>
+          </thead>
+          <tbody>
+          <template is="dom-repeat" items="[[model.messages]]" as="message">
+            <tr>
+              <td>[[message.topic]]</td>
+              <td>[[message.message.qos]]</td>
+              <td class="full">[[message.parsedPayload]]</td>
+            </tr>
+          </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'mqtt-subscription-view',
+
+      properties: {
+        model: {
+          type: Object
+        }
+      },
+
+      _removeSubscription: function (event) {
+        this.fire("mqtt-subscription-remove-view", this.model);
+      },
+
+
+    });
+  </script>
+</dom-module>

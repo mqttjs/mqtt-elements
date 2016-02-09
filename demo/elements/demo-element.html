@@ -9,6 +9,9 @@
 <link rel="import" href="../../../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../mqtt-elements.html">
 
+<link rel="import" href="mqtt-subscription-view.html">
+
+
 <dom-module id="demo-element">
 
   <link rel="import" type="css" href="demo.css">
@@ -28,6 +31,7 @@
       <!--create a mqtt subscription for every item in topics-->
       <template is="dom-repeat" items="{{topics}}" as="t">
         <mqtt-subscription topic="[[t.topic]]"
+                           messages="{{t.messages}}"
                            number-of-messages="10"
                            qos="[[t.qos]]"></mqtt-subscription>
       </template>
@@ -113,40 +117,8 @@
       </div>
 
       <!--output every subscription-->
-      <template id="subscriptionList" is="dom-repeat" items="[[subscriptions]]" as="sub" observe="messages.*">
-        <div class="vertical-section">
-          <div>
-            <div class="sub-header">
-              <h2 class="title">Subscribed to - <span>[[sub.topic]]</span></h2>
-              <h3 class="qos">QoS: <span>[[sub.qos]]</span></h3>
-              <paper-icon-button on-tap="_removeSubscription"
-                                 icon="icons:delete"
-                                 alt="remove"
-                                 title="remove subscription"></paper-icon-button>
-            </div>
-            <table>
-              <thead>
-              <tr>
-                <th colspan="3">Messages</th>
-              </tr>
-              <tr>
-                <th>Topic</th>
-                <th>QoS</th>
-                <th class="full">Payload</th>
-              </tr>
-              </thead>
-              <tbody>
-              <template is="dom-repeat" items="{{sub.messages}}" as="message">
-                <tr>
-                  <td>{{message.topic}}</td>
-                  <td>{{message.message.qos}}</td>
-                  <td class="full">{{message.parsedPayload}}</td>
-                </tr>
-              </template>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <template id="subscriptionList" is="dom-repeat" items="[[topics]]" as="sub">
+        <mqtt-subscription-view model="[[sub]]"></mqtt-subscription-view>
       </template>
     </div>
   </template>
@@ -166,12 +138,9 @@
           type: Object,
         },
 
-        subscriptions: {
-          type: Array,
-        },
-
         newSubTopic: {
           type: String,
+          value: ""
         },
 
         subQos: {
@@ -194,7 +163,7 @@
 
         topic: {
           type: String,
-          value: "foo/bar",
+          value: "",
         },
 
         messages: {
@@ -224,7 +193,17 @@
 
         clientId: {
           type: String,
+        },
+
+        value: {
+          type: String,
+          value: "foo/bar"
         }
+
+      },
+
+      listeners: {
+        "mqtt-subscription-remove-view": "_removeSubscription"
       },
 
       observers: [],
@@ -261,7 +240,7 @@
 
       _addSub: function () {
         if(this.newSubTopic.length > 0) {
-          this.push("topics", {topic: this.newSubTopic, qos: this.subQos});
+          this.push("topics", {topic: this.newSubTopic, qos: this.subQos, messages: []});
         }
       },
 
@@ -291,11 +270,8 @@
       },
 
       _removeSubscription: function (event) {
-        // using the index of the subscriptions array only works because we have not changed the order of the
-        // subscriptions. Otherwise it would be nessesary to have some sort of ID for each subscription to easily map
-        // the subscription to the model.
-        var index = this.subscriptions.indexOf(event.model.sub)
-        this.splice("topics", index, 1);
+        var key = Polymer.Collection.get(this.topics).getKey(event.detail);
+        this.splice("topics", key, 1);
       },
 
     });

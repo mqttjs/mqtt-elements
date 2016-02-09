@@ -1,14 +1,14 @@
 :root {
---status-icon: {
-     width: 20px;
-     height: 20px;
-     border-radius: 50%;
-     overflow: hidden;
- };
+    --status-icon: {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        overflow: hidden;
+    };
 
---paper-icon-button: {
-    margin-right: -8px;
- };
+    --paper-icon-button: {
+        margin-right: -8px;
+    };
 }
 
 body {
@@ -19,20 +19,19 @@ body {
     background-color: var(--paper-grey-50);
 }
 
-
 .horizontal-section {
     background-color: white;
     padding: 24px;
     margin-right: 24px;
     min-width: 200px;
-@apply(--shadow-elevation-2dp);
+    @apply(--shadow-elevation-2dp);
 }
 
 .vertical-section {
     background-color: white;
     padding: 24px;
     margin: 0 24px 24px 24px;
-@apply(--shadow-elevation-2dp);
+    @apply(--shadow-elevation-2dp);
 }
 
 .vertical-section table {
@@ -48,17 +47,17 @@ body {
 }
 
 paper-slider {
-    width:100px;
+    width: 100px;
 }
 
 .sub-header {
-@apply(--layout);
-@apply(--layout-center);
-@apply(--layout-wrap);
+    @apply(--layout);
+    @apply(--layout-center);
+    @apply(--layout-wrap);
 }
 
 .sub-header .title {
-@apply(--layout-flex);
+    @apply(--layout-flex);
     min-width: 248px;
 }
 
@@ -72,10 +71,10 @@ paper-slider {
 
 .horizontal-section-container-end {
     margin-top: 16px;
-@apply(--layout-horizontal);
-@apply(--layout-center);
-@apply(--layout-end-justified);
-@apply(--layout-wrap);
+    @apply(--layout-horizontal);
+    @apply(--layout-center);
+    @apply(--layout-end-justified);
+    @apply(--layout-wrap);
 }
 
 td, th {
@@ -88,30 +87,29 @@ tbody tr:nth-child(odd) {
 }
 
 .connected {
-@apply(--status-icon);
+    @apply(--status-icon);
     background: darkseagreen;
 }
 
 .disconnected {
-@apply(--status-icon);
+    @apply(--status-icon);
     background: indianred;
 }
 
 .status {
-@apply(--layout);
-@apply(--layout-center);
+    @apply(--layout);
+    @apply(--layout-center);
     margin-left: 1rem;
 }
 
 .status h3 {
-@apply(--layout-flex);
+    @apply(--layout-flex);
     margin-right: 0.25rem;
 }
 
 .layout.wrap.center-center {
     max-width: 800px;
 }
-
 
 .settings > h3 {
     margin-bottom: 0;
