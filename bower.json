@@ -5,6 +5,7 @@
   "description": "Polymer elements for MQTT",
   "main": "mqtt-elements.html",
   "keywords": [
+    "web-components"
     "mqtt",
     "polymer",
     "websockets"
