@@ -30,7 +30,8 @@
     "grunt-contrib-watch": "^0.6.1",
     "jscs": "^2.4.0",
     "mqtt": "^1.3.0",
-    "web-component-tester": "git+https://github.com/sandro-k/web-component-tester.git"
+    "web-component-tester": "git+https://github.com/sandro-k/web-component-tester.git",
+    "web-component-tester-istanbul": "https://github.com/t2ym/web-component-tester-istanbul/tarball/0.10.1"
   },
   "dependencies": {
     "mqemitter": "^0.4.0"
