@@ -4,9 +4,13 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>mqtt-subscription-spec</title>
 
-  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
 
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
 
   <!-- Step 1: import the element to test -->
   <link rel="import" href="../mqtt-elements.html">
@@ -14,18 +18,27 @@
 </head>
 <body>
 
-<mqtt-subscription></mqtt-subscription>
+<test-fixture id="mqttSubscription">
+  <template>
+    <mqtt-subscription></mqtt-subscription>
+  </template>
+</test-fixture>
+
 
 <script>
-  //  Setp 2: get the element
-  var mqttSubscription =  document.querySelector('mqtt-subscription');
-
+  var mqttSubscription
 
   suite('mqtt-subscription-spec', function() {
+
+    setup(() => {
+      mqttSubscription = fixture('mqttSubscription');
+    });
+
     //  Setp 3: Test the element
     test('Element is not null', function() {
       assert.isNotNull(mqttSubscription);
-      assert.typeOf(mqttSubscription, 'object');
+//      console.log('aaa', mqttSubscription);
+//      assert.typeOf(mqttSubscription, 'object');
     });
 
     test('mqtt-subscription.qos is a number', function() {
