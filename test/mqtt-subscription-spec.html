@@ -28,37 +28,37 @@
 <script>
   var mqttSubscription
 
-  suite('mqtt-subscription-spec', function() {
+  suite('mqtt-subscription-spec', () => {
 
     setup(() => {
       mqttSubscription = fixture('mqttSubscription');
     });
 
     //  Setp 3: Test the element
-    test('Element is not null', function() {
+    test('Element is not null', () => {
       assert.isNotNull(mqttSubscription);
 //      assert.typeOf(mqttSubscription, 'object');
     });
 
-    test('mqtt-subscription.qos is a number', function() {
+    test('mqtt-subscription.qos is a number', () => {
       assert.isNumber(mqttSubscription.qos);
       assert.strictEqual(mqttSubscription.qos, 0)
     });
 
-    test('mqtt-subscription.topic', function() {
+    test('mqtt-subscription.topic', () => {
       assert.isUndefined(mqttSubscription.topic);
     });
 
-    test('mqtt-subscription.lastMessage', function() {
+    test('mqtt-subscription.lastMessage', () => {
       assert.isUndefined(mqttSubscription.lastMessage);
     });
 
-    test('mqtt-subscription.messages is a array', function() {
+    test('mqtt-subscription.messages is a array', () => {
       assert.typeOf(mqttSubscription.messages, 'array');
       assert.deepEqual(mqttSubscription.messages, [])
     });
 
-    test('mqtt-subscription.subscribed is a boolean', function() {
+    test('mqtt-subscription.subscribed is a boolean', () => {
       assert.isBoolean(mqttSubscription.subscribed);
       assert.isFalse(mqttSubscription.subscribed)
     });
