@@ -2,7 +2,7 @@ language: node_js
 sudo: false
 addons:
   firefox: latest
- apt:
+  apt:
     sources:
       - google-chrome
     packages:
