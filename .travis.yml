@@ -2,16 +2,15 @@ language: node_js
 sudo: false
 addons:
   firefox: latest
-  apt:
+ apt:
     sources:
       - google-chrome
-      - ubuntu-toolchain-r-test
     packages:
       - google-chrome-stable
-      - g++-4.8
 node_js:
-  - '4.2'
-  - '5.1'
+  - '4'
+  - '5'
+  - '6'
 before_script:
   - 'export DISPLAY=:99.0'
   - sh -e /etc/init.d/xvfb start
