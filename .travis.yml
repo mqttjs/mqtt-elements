@@ -21,8 +21,6 @@ before_script:
   - bower install
 script:
   - xvfb-run polymer test
-script:
-  - ./travis-runner.sh
 env:
   global:
     - "CXX='g++-4.8'"
