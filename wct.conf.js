@@ -1,22 +1,22 @@
 module.exports = {
-  "verbose": false,
-      "plugins": {
+  "verbose": true,
+  "plugins": {
     "istanbul": {
       "dir": "./coverage",
-          "reporters": [
+      "reporters": [
         "text-summary",
         "lcov",
         "html"
       ],
-          "include": [
+      "include": [
         "mqtt-connection.html"
       ],
-          "exclude": []
+      "exclude": []
     },
     "local": {
-      "skipSeleniumInstall": true,
-          "persistent": true,
-          "browsers": [
+      "skipSeleniumInstall": false,
+      "persistent": true,
+      "browsers": [
         "chrome"
       ]
     }
